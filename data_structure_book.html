@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Structure I – Interactive Book</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f172a;
+  --surface: rgba(30, 41, 59, 0.7);
+  --surface2: rgba(51, 65, 85, 0.8);
+  --border: rgba(148, 163, 184, 0.15);
+  --accent: #fbbf24;
+  --accent-glow: rgba(251, 191, 36, 0.3);
+  --text: #f8fafc;
+  --text-muted: #94a3b8;
+  --arabic: #fde68a;
+  --question-bg: rgba(2, 6, 23, 0.4);
+  --correct: #10b981;
+  --incorrect: #ef4444;
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+  --glass-blur: blur(16px);
+  --chapter-colors: #fbbf24, #60a5fa, #34d399, #c084fc, #f472b6, #a3e635;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Amiri', serif;
+  background: linear-gradient(135deg, #020617, #0f172a, #1e293b);
+  background-attachment: fixed;
+  color: var(--text);
+  min-height: 100vh;
+  direction: rtl;
+}
+
+/* ── Header ── */
+.site-header {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid var(--border);
+  padding: 2rem 1.5rem 1.5rem;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+}
+.site-header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.6rem, 4vw, 2.6rem);
+  color: var(--accent);
+  letter-spacing: 1px;
+  text-shadow: 0 0 25px var(--accent-glow);
+}
+.site-header .subtitle {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  direction: ltr;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.site-header .badge {
+  display: inline-block;
+  background: linear-gradient(90deg, #fbbf24, #f59e0b);
+  color: #000;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-top: 0.8rem;
+  box-shadow: 0 2px 10px rgba(251,191,36,0.3);
+}
+
+/* ── Layout ── */
+.layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: calc(100vh - 120px);
+  direction: rtl;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: var(--glass-blur);
+  border-left: 1px solid var(--border);
+  padding: 1.5rem 0;
+  position: sticky;
+  top: 120px;
+  height: calc(100vh - 120px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) transparent;
+}
+.sidebar h2 {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  padding: 0 1.2rem 1rem;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.chapter-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  width: calc(100% - 16px);
+  margin: 4px 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  color: var(--text);
+  padding: 0.8rem 1.2rem;
+  cursor: pointer;
+  text-align: right;
+  font-family: 'Amiri', serif;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+.chapter-nav-btn:hover {
+  background: rgba(255,255,255,0.05);
+  transform: translateX(-4px);
+}
+.chapter-nav-btn.active {
+  background: rgba(251, 191, 36, 0.1);
+  border-color: rgba(251, 191, 36, 0.3);
+  color: var(--accent);
+  box-shadow: inset -4px 0 0 var(--accent);
+}
+.chapter-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+/* ── Main content ── */
+.main-content {
+  padding: 2.5rem 3rem;
+  direction: rtl;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* ── Chapter section ── */
+.chapter-section {
+  display: none;
+  animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.chapter-section.active {
+  display: block;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.chapter-header {
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+.chapter-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 0.5rem;
+  color: var(--accent);
+}
+.chapter-header h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+.chapter-ar-title {
+  font-size: 1.4rem;
+  color: var(--arabic);
+}
+
+/* ── Line block ── */
+.line-block {
+  background: var(--surface);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--glass-shadow);
+  margin-bottom: 2rem;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.line-block:hover {
+  transform: translateY(-4px);
+  border-color: rgba(251, 191, 36, 0.4);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(251, 191, 36, 0.1);
+}
+
+.english-line {
+  padding: 1.2rem 1.5rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.95rem;
+  direction: ltr;
+  text-align: left;
+  color: var(--text);
+  background: rgba(0,0,0,0.2);
+  border-bottom: 1px solid var(--border);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.english-line.is-heading {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--accent);
+  background: rgba(251, 191, 36, 0.05);
+}
+.english-line.is-code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.9rem;
+  color: #93c5fd;
+  background: #020617;
+  border-left: 4px solid #3b82f6;
+}
+
+.arabic-line {
+  padding: 1.2rem 1.5rem;
+  font-family: 'Amiri', serif;
+  font-size: 1.2rem;
+  color: var(--arabic);
+  direction: rtl;
+  text-align: right;
+  line-height: 1.8;
+}
+
+/* ── Question section ── */
+.question-section {
+  padding: 1rem 1.5rem;
+  background: var(--question-bg);
+  border-top: 1px solid var(--border);
+}
+.question-toggle {
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.95rem;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: right;
+  padding: 0.5rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  transition: all 0.2s;
+}
+.question-toggle:hover { opacity: 0.8; transform: translateX(-4px); }
+.q-icon { font-size: 1.2rem; }
+
+.questions-container {
+  display: none;
+  margin-top: 1rem;
+}
+.questions-container.open {
+  display: block;
+  animation: fadeIn 0.4s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.quiz-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: rgba(255,255,255,0.03);
+  border-radius: 12px;
+  border: 1px dashed rgba(251, 191, 36, 0.3);
+}
+.quiz-q-en {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 1.05rem;
+  color: #fff;
+  direction: ltr;
+  text-align: left;
+}
+.quiz-q-ar {
+  font-family: 'Amiri', serif;
+  font-size: 1.3rem;
+  color: var(--accent);
+  margin-bottom: 1rem;
+}
+.quiz-option {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 1.2rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(0,0,0,0.3);
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.quiz-option:hover {
+  background: rgba(251, 191, 36, 0.05);
+  border-color: rgba(251, 191, 36, 0.4);
+  transform: translateX(-4px);
+}
+.quiz-option.correct {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: var(--correct);
+}
+.quiz-option.correct::after {
+  content: '✓ صحيح';
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--correct);
+  font-weight: bold;
+  font-family: 'Amiri', serif;
+}
+.quiz-option.incorrect {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: var(--incorrect);
+}
+.quiz-option.incorrect::after {
+  content: '✗ خطأ';
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--incorrect);
+  font-weight: bold;
+  font-family: 'Amiri', serif;
+}
+.quiz-opt-en {
+  font-family: 'IBM Plex Mono', monospace;
+  direction: ltr;
+  text-align: left;
+  font-size: 0.95rem;
+  color: #cbd5e1;
+  margin-bottom: 0.4rem;
+}
+.quiz-opt-ar {
+  font-family: 'Amiri', serif;
+  font-size: 1.15rem;
+  color: #fde68a;
+}
+
+/* Progress bar */
+.reading-progress {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 0%;
+  height: 4px;
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+  z-index: 9999;
+  transition: width 0.1s;
+  box-shadow: 0 0 10px #fbbf24;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar {
+    position: static;
+    height: auto;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 1rem;
+    gap: 0.5rem;
+    border-left: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar h2 { display: none; }
+  .chapter-nav-btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    flex: none;
+    width: auto;
+    margin: 0;
+  }
+  .main-content { padding: 1.5rem 1rem; }
+  .quiz-option.correct::after, .quiz-option.incorrect::after {
+    position: static;
+    display: block;
+    margin-top: 0.5rem;
+    transform: none;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: rgba(251, 191, 36, 0.5); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="reading-progress" id="readingProgress"></div>
+
+<header class="site-header">
+  <h1>📚 Data Structure I — هياكل البيانات</h1>
+  <div class="subtitle">Dr. Nahla Fathy · Qena University · CS211</div>
+  <div class="badge">🔥 تفاعلي: أسئلة اختيار من متعدد على كل سطر (MCQ)</div>
+</header>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebar">
+    <h2>الفصول</h2>
+    <button class="chapter-nav-btn active" onclick="showChapter(1)" id="nav1">
+      <span class="chapter-num" style="background:#fbbf24;color:#000">1</span>
+      مقدمة هياكل البيانات
+    </button>
+    <button class="chapter-nav-btn" onclick="showChapter(2)" id="nav2">
+      <span class="chapter-num" style="background:#60a5fa;color:#000">2</span>
+      إدارة الذاكرة
+    </button>
+    <button class="chapter-nav-btn" onclick="showChapter(3)" id="nav3">
+      <span class="chapter-num" style="background:#34d399;color:#000">3</span>
+      المصفوفات والقوائم
+    </button>
+    <button class="chapter-nav-btn" onclick="showChapter(4)" id="nav4">
+      <span class="chapter-num" style="background:#c084fc;color:#000">4</span>
+      المكدس Stack
+    </button>
+    <button class="chapter-nav-btn" onclick="showChapter(5)" id="nav5">
+      <span class="chapter-num" style="background:#f472b6;color:#000">5</span>
+      الطوابير Queue
+    </button>
+    <button class="chapter-nav-btn" onclick="showChapter(6)" id="nav6">
+      <span class="chapter-num" style="background:#a3e635;color:#000">6</span>
+      القوائم المتشعبة
+    </button>
+  </nav>
+
+  <!-- Main -->
+  <main class="main-content" id="mainContent">
+
+    <!-- CHAPTER 1 -->
+    <section class="chapter-section active" id="ch1">
+      <div class="chapter-header">
+        <div class="chapter-tag" style="color:#fbbf24">CHAPTER 1</div>
+        <h2>Introduction to Data Structure</h2>
+        <div class="chapter-ar-title">مقدمة إلى هياكل البيانات</div>
+      </div>
+      <div id="ch1-lines"></div>
+    </section>
+
+    <!-- CHAPTER 2 -->
+    <section class="chapter-section" id="ch2">
+      <div class="chapter-header">
+        <div class="chapter-tag" style="color:#60a5fa">CHAPTER 2</div>
+        <h2>Memory Management</h2>
+        <div class="chapter-ar-title">إدارة الذاكرة</div>
+      </div>
+      <div id="ch2-lines"></div>
+    </section>
+
+    <!-- CHAPTER 3 -->
+    <section class="chapter-section" id="ch3">
+      <div class="chapter-header">
+        <div class="chapter-tag" style="color:#34d399">CHAPTER 3</div>
+        <h2>Array & List</h2>
+        <div class="chapter-ar-title">المصفوفات والقوائم</div>
+      </div>
+      <div id="ch3-lines"></div>
+    </section>
+
+    <!-- CHAPTER 4 -->
+    <section class="chapter-section" id="ch4">
+      <div class="chapter-header">
+        <div class="chapter-tag" style="color:#c084fc">CHAPTER 4</div>
+        <h2>The Stack – Data Structure</h2>
+        <div class="chapter-ar-title">المكدس – هيكل بيانات</div>
+      </div>
+      <div id="ch4-lines"></div>
+    </section>
+
+    <!-- CHAPTER 5 -->
+    <section class="chapter-section" id="ch5">
+      <div class="chapter-header">
+        <div class="chapter-tag" style="color:#f472b6">CHAPTER 5</div>
+        <h2>The Queues</h2>
+        <div class="chapter-ar-title">الطوابير</div>
+      </div>
+      <div id="ch5-lines"></div>
+    </section>
+
+    <!-- CHAPTER 6 -->
+    <section class="chapter-section" id="ch6">
+      <div class="chapter-header">
+        <div class="chapter-tag" style="color:#a3e635">CHAPTER 6</div>
+        <h2>Linked List</h2>
+        <div class="chapter-ar-title">القوائم المترابطة</div>
+      </div>
+      <div id="ch6-lines"></div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+/* =============================================
+   BOOK DATA — Chapters 1 to 6
+   ============================================= */
+const BOOK_DATA = {
+
+  ch1: [
+    ["1.1 Programming Methodologies", "١.١ منهجيات البرمجة", true],
+    ["Programming methodologies focus on different approaches used to design and develop programs efficiently.", "تركّز منهجيات البرمجة على الأساليب المختلفة المستخدمة لتصميم البرامج وتطويرها بكفاءة.", false],
+    ["They guide programmers in writing programs that are clear, structured, easy to debug, and maintainable.", "وهي ترشد المبرمجين إلى كتابة برامج واضحة ومنظّمة وسهلة تتبّع الأخطاء والصيانة.", false],
+    ["This subject assumes that the learner already understands the basic syntax of C and C++ and is capable of writing, compiling, debugging, and executing programs in these languages.", "يفترض هذا الموضوع أن المتعلّم يفهم بالفعل البنية الأساسية للغتَي C وC++ وقادر على كتابة وتجميع وتنقيح وتشغيل البرامج بهما.", false],
+    ["The emphasis of this chapter is not only on organizing data but also on structuring the programs that operate on that data.", "تركيز هذا الفصل ليس فقط على تنظيم البيانات، بل أيضاً على هيكلة البرامج التي تعمل على تلك البيانات.", false],
+    ["A well-structured program improves readability, reduces complexity, and enhances efficiency.", "البرنامج جيد البنية يحسّن القابلية للقراءة ويقلّل التعقيد ويرفع الكفاءة.", false],
+    ["Concept of Data", "مفهوم البيانات", true],
+    ["Data is the fundamental entity used in computation and processing.", "البيانات هي الكيان الأساسي المستخدم في الحوسبة والمعالجة.", false],
+    ["It represents facts or values that are manipulated by programs to produce meaningful results.", "وهي تمثّل حقائق أو قيماً تعالجها البرامج لإنتاج نتائج ذات معنى.", false],
+    ["Data can be classified into two main types: Numerical Data (includes integers and floating-point numbers) and Alphanumeric Data (includes characters and strings).", "يمكن تصنيف البيانات إلى نوعين رئيسيين: البيانات الرقمية (تشمل الأعداد الصحيحة وأعداد الفاصلة العائمة) والبيانات الأبجدية الرقمية (تشمل الأحرف والنصوص).", false],
+    ["Data can exist as a single value or as a collection of values.", "يمكن أن توجد البيانات كقيمة واحدة أو كمجموعة من القيم.", false],
+    ["When data is grouped together, it must be organized in a systematic manner.", "عندما يتم تجميع البيانات معاً، يجب تنظيمها بطريقة منهجية.", false],
+    ["The way data is structured has a significant impact on the performance and efficiency of a program.", "الطريقة التي تُنظَّم بها البيانات لها تأثير كبير على أداء البرنامج وكفاءته.", false],
+    ["Data Structures are a fundamental concept in computer science concerned with the organization, storage, and management of data in a computer so that it can be accessed and modified efficiently.", "هياكل البيانات هي مفهوم أساسي في علوم الحاسوب يتعلق بتنظيم البيانات وتخزينها وإدارتها في الحاسوب بحيث يمكن الوصول إليها وتعديلها بكفاءة.", false],
+    ["As modern applications deal with large volumes of data, the choice of an appropriate data structure becomes critical for achieving better performance, faster execution, and optimal memory usage.", "نظراً لتعامل التطبيقات الحديثة مع كميات ضخمة من البيانات، يصبح اختيار هيكل البيانات المناسب أمراً بالغ الأهمية لتحقيق أداء أفضل وتنفيذ أسرع واستخدام أمثل للذاكرة.", false],
+    ["Data structures, together with algorithms, form the backbone of software development.", "تشكّل هياكل البيانات مع الخوارزميات العمود الفقري لتطوير البرمجيات.", false],
+    ["They are widely used in operating systems, databases, artificial intelligence, networking, compiler design, and many other computing domains.", "وتُستخدم على نطاق واسع في أنظمة التشغيل وقواعد البيانات والذكاء الاصطناعي والشبكات وتصميم المترجمات والعديد من مجالات الحوسبة الأخرى.", false],
+    ["A data structure is a method of representing and organizing data elements by considering the logical relationships among them.", "هيكل البيانات هو أسلوب لتمثيل عناصر البيانات وتنظيمها مع مراعاة العلاقات المنطقية فيما بينها.", false],
+    ["In simple terms, it defines how data items are arranged and connected to each other.", "ببساطة، يُحدّد كيفية ترتيب عناصر البيانات وربطها ببعضها.", false],
+    ["Data structures provide: A structured way to store data, Efficient methods for accessing and manipulating data, Proper organization based on relationships between data elements.", "توفّر هياكل البيانات: طريقة منظّمة لتخزين البيانات، وأساليب فعّالة للوصول إليها ومعالجتها، وتنظيماً سليماً يرتكز على العلاقات بين عناصر البيانات.", false],
+    ["Algorithm + Data Structure = Program", "خوارزمية + هيكل بيانات = برنامج", true],
+    ["This means that a program is formed by combining: An algorithm (logic and steps to solve a problem) and A data structure (organization of data required by the algorithm).", "يعني ذلك أن البرنامج يتكوّن من دمج: خوارزمية (المنطق والخطوات اللازمة لحل مشكلة) وهيكل بيانات (تنظيم البيانات التي تحتاجها الخوارزمية).", false],
+    ["Importance of Data Structures", "أهمية هياكل البيانات", true],
+    ["Data structures are considered the building blocks of programs.", "تُعدّ هياكل البيانات اللبنات الأساسية للبرامج.", false],
+    ["Choosing the right data structure allows programmers to design programs that are more efficient in terms of: Execution time, Memory usage, and Scalability.", "يتيح اختيار هيكل البيانات الصحيح للمبرمجين تصميم برامج أكثر كفاءة من حيث: وقت التنفيذ، واستخدام الذاكرة، وقابلية التوسع.", false],
+    ["As computational problems grow in size and complexity, programmers must analyze problems carefully and break them into smaller subproblems.", "مع نمو المسائل الحسابية في الحجم والتعقيد، يجب على المبرمجين تحليل المشكلات بعناية وتقسيمها إلى مسائل فرعية أصغر.", false],
+    ["This approach follows the principle of Divide, Conquer, and Combine, making problem-solving more manageable.", "يتّبع هذا الأسلوب مبدأ «قسّم وانتصر واجمع»، مما يجعل حل المشكلات أكثر قابلية للإدارة.", false],
+    ["1.2 Algorithm definition", "١.٢ تعريف الخوارزمية", true],
+    ["An algorithm is a set of instructions to be done sequentially.", "الخوارزمية هي مجموعة من التعليمات التي تُنفَّذ بالتتابع.", false],
+    ["Any work to be done can be thought as series of steps.", "يمكن اعتبار أي عمل ينبغي إنجازه سلسلة من الخطوات.", false],
+    ["For example, to perform an experiment, one must do some sequential tasks like: 1. Set up the required apparatus, 2. Do the process required, 3. Note any observations, 4. Summarize the results.", "على سبيل المثال، لإجراء تجربة، يجب القيام ببعض المهام المتتالية مثل: ١. إعداد الأجهزة المطلوبة، ٢. تنفيذ العملية المطلوبة، ٣. تسجيل الملاحظات، ٤. تلخيص النتائج.", false],
+    ["A computer or other electronic device which accomplishes a logical task is not actually logical but is simply following a series of programmed, sequential instructions.", "الحاسوب أو أي جهاز إلكتروني ينجز مهمة منطقية ليس منطقياً بالفعل، بل يتّبع ببساطة سلسلة من التعليمات المبرمجة المتتالية.", false],
+    ["\"An algorithm is a well define procedure that takes some value as input and produces some value as the output in finite number of steps.\"", "«الخوارزمية هي إجراء محدّد بدقة يأخذ قيمة ما كمدخل ويُنتج قيمة ما كمخرج في عدد منتهٍ من الخطوات.»", false],
+    ["\"An algorithm is thus a sequence of computational steps that transform the input into the output that must halt after a final number of steps or time.\"", "«وبالتالي فالخوارزمية هي تسلسل من الخطوات الحسابية تحوّل المدخل إلى المخرج ويجب أن تتوقف بعد عدد نهائي من الخطوات أو الزمن.»", false],
+    ["\"An algorithm is a procedure for processing that is formulated so precisely that it may be performed by a mechanical or electronic device and it has to terminate in definite time.\"", "«الخوارزمية هي إجراء للمعالجة صُيغ بدقة بالغة بحيث يمكن تنفيذه بجهاز ميكانيكي أو إلكتروني ويجب أن ينتهي في وقت محدّد.»", false],
+    ["Example: Write an algorithm to exchange the value of two variables.", "مثال: اكتب خوارزمية لتبادل قيمتَي متغيّرين.", false],
+    ["Algorithm: 1. Consider the two variables a, b with some values. 2. Consider a third variable t. 3.(a) Assign the value of a to t, (b) Assign the value of b to a, (c) Assign the value of t to b. 4. Print the exchange value of a and b.", "الخوارزمية: ١. اعتبر المتغيّرين a وb يحملان قيماً. ٢. اعتبر متغيراً ثالثاً t. ٣.(أ) خصّص قيمة a لـ t، (ب) خصّص قيمة b لـ a، (ج) خصّص قيمة t لـ b. ٤. اطبع القيمة المتبادلة لـ a وb.", false],
+    ["1.3 Basic criteria for algorithms:", "١.٣ المعايير الأساسية للخوارزميات:", true],
+    ["1) The algorithm must be expressed in a fashion that is completely free of ambiguity.", "١) يجب أن تُعبَّر الخوارزمية بأسلوب خالٍ تماماً من الغموض.", false],
+    ["2) The algorithm must be efficient. It should not unnecessarily use memory locations nor should it require an excessive number of logical operations.", "٢) يجب أن تكون الخوارزمية فعّالة. ينبغي ألا تستخدم مواقع ذاكرة دون حاجة ولا تتطلب عدداً مفرطاً من العمليات المنطقية.", false],
+    ["3) The algorithm should be concise and compact to facilitate verification of their correctness.", "٣) يجب أن تكون الخوارزمية موجزة ومضغوطة لتسهيل التحقق من صحتها.", false],
+    ["4) The algorithm must be independent from any programming language — mostly written in pseudo code — so it can convert to any programming language with the proper use of programming language syntax.", "٤) يجب أن تكون الخوارزمية مستقلة عن أي لغة برمجة — وتُكتب في الغالب بالكود الزائف — حتى يمكن تحويلها إلى أي لغة برمجة مع الاستخدام الصحيح لبنيتها.", false],
+    ["1.4 Analysis of Algorithm", "١.٤ تحليل الخوارزمية", true],
+    ["After an algorithm is designed, it must be evaluated to ensure correctness and efficiency.", "بعد تصميم الخوارزمية، يجب تقييمها للتأكد من صحتها وكفاءتها.", false],
+    ["This evaluation process is known as algorithm analysis.", "يُعرف هذا التقييم بتحليل الخوارزمية.", false],
+    ["Algorithm analysis helps us predict whether an algorithm works correctly and how efficiently it uses system resources.", "يساعدنا تحليل الخوارزمية على التنبؤ بما إذا كانت الخوارزمية تعمل بشكل صحيح وكيف تستخدم موارد النظام بكفاءة.", false],
+    ["An algorithm can be analyzed in several ways: By tracing the algorithm step by step, By examining the logic for correctness, By testing the algorithm with sample input data, By using mathematical techniques to prove correctness.", "يمكن تحليل خوارزمية بعدة طرق: تتبّع الخوارزمية خطوة بخطوة، فحص المنطق للتأكد من الصحة، اختبار الخوارزمية ببيانات إدخال نموذجية، استخدام التقنيات الرياضية لإثبات الصحة.", false],
+    ["The two main performance measures used in algorithm analysis are: 1. Space Complexity, 2. Time Complexity.", "المقياسان الرئيسيان للأداء المستخدمان في تحليل الخوارزمية هما: ١. تعقيد الفضاء، ٢. تعقيد الزمن.", false],
+    ["1.4.1 Space Complexity", "١.٤.١ التعقيد المكاني", true],
+    ["Space complexity refers to the amount of memory required by an algorithm or program to run until completion.", "يشير التعقيد المكاني إلى مقدار الذاكرة التي تحتاجها الخوارزمية أو البرنامج للتشغيل حتى الاكتمال.", false],
+    ["Space complexity analysis is important because: In multi-user systems, memory allocation must be specified in advance. It helps determine whether sufficient memory is available before executing a program. Different algorithms solving the same problem may require different amounts of memory. It helps estimate the largest input size that a program can handle.", "تحليل التعقيد المكاني مهم لأن: في أنظمة متعددة المستخدمين يجب تحديد تخصيص الذاكرة مسبقاً. يساعد في تحديد ما إذا كانت الذاكرة الكافية متاحة قبل تشغيل البرنامج. الخوارزميات المختلفة لحل نفس المشكلة قد تحتاج كميات مختلفة من الذاكرة. يساعد في تقدير أكبر حجم مدخل يمكن للبرنامج التعامل معه.", false],
+    ["Components of Space Requirement: 1. Instruction Space — Memory required to store the executable program (fixed). 2. Data Space — Memory for constants, variables, and data structures. 3. Environment Stack Space — Used to store information for suspended function calls.", "مكونات متطلبات الفضاء: ١. فضاء التعليمات — الذاكرة اللازمة لتخزين البرنامج القابل للتشغيل (ثابت). ٢. فضاء البيانات — الذاكرة للثوابت والمتغيرات وهياكل البيانات. ٣. فضاء مكدس البيئة — يُستخدم لتخزين معلومات استئناف استدعاءات الدوال المعلّقة.", false],
+    ["For recursive functions, this memory is known as recursion stack space.", "بالنسبة للدوال العودية، تُعرف هذه الذاكرة بفضاء مكدس العودية.", false],
+    ["1.4.2 Time Complexity", "١.٤.٢ التعقيد الزمني", true],
+    ["Time complexity refers to the amount of time required by an algorithm to execute completely.", "يشير التعقيد الزمني إلى مقدار الوقت الذي تحتاجه الخوارزمية للتنفيذ الكامل.", false],
+    ["The actual execution time depends on many factors, including: Programming language used, Compiler optimization, CPU speed, Hardware architecture, Input size.", "يعتمد وقت التنفيذ الفعلي على عوامل عديدة منها: لغة البرمجة المستخدمة، وتحسين المُترجم، وسرعة المعالج، وبنية العتاد، وحجم المدخلات.", false],
+    ["Instead of measuring exact time, algorithm analysis focuses on estimating the order of growth of execution time.", "بدلاً من قياس الوقت الدقيق، يركّز تحليل الخوارزمية على تقدير ترتيب نمو وقت التنفيذ.", false],
+    ["Time complexity is usually expressed using asymptotic notations such as: Big-O (O), Big-Theta (Θ), Big-Omega (Ω).", "يُعبَّر عن التعقيد الزمني عادةً باستخدام الرموز التقاربية مثل: Big-O (O)، و Big-Theta (Θ)، و Big-Omega (Ω).", false],
+    ["1.4.3 Cases of Algorithm Analysis", "١.٤.٣ حالات تحليل الخوارزمية", true],
+    ["1. Best Case — The best case represents the minimum amount of time required by an algorithm when the input data is in the most favorable or optimal form. Example: Searching for an element that appears at the first position in a list.", "١. الحالة المثلى — تمثّل الحالة المثلى أدنى مقدار من الوقت الذي تحتاجه الخوارزمية عندما تكون بيانات الإدخال في أفضل صورة. مثال: البحث عن عنصر يظهر في الموضع الأول من قائمة.", false],
+    ["2. Average Case — The average case represents the expected running time of an algorithm over all possible inputs, assuming that inputs are distributed uniformly. It provides a more realistic measure of performance in typical real-world scenarios.", "٢. الحالة المتوسطة — تمثّل الحالة المتوسطة وقت التشغيل المتوقع لخوارزمية على جميع المدخلات الممكنة، بافتراض أن المدخلات موزّعة بشكل منتظم. وتوفّر مقياساً أكثر واقعية للأداء في السيناريوهات الحقيقية النموذجية.", false],
+    ["3. Worst Case — The worst case represents the maximum amount of time an algorithm may take for the most unfavorable input configuration. This case is particularly important because it guarantees an upper bound on performance. Example: Searching for an element that is not present in the list.", "٣. الحالة الأسوأ — تمثّل الحالة الأسوأ أقصى مقدار من الوقت قد تستغرقه الخوارزمية لأكثر تهيئة للمدخلات سلبيةً. وهذه الحالة مهمة بشكل خاص لأنها تضمن حداً أعلى على الأداء. مثال: البحث عن عنصر غير موجود في القائمة.", false],
+    ["1.5 Data structure", "١.٥ هيكل البيانات", true],
+    ["Data are simply values or set of values.", "البيانات هي ببساطة قيم أو مجموعة من القيم.", false],
+    ["A data item is either the value of a variable or a constant.", "عنصر البيانات هو إما قيمة متغيّر أو ثابت.", false],
+    ["A data item that does not have subordinate data items is called an elementary item.", "عنصر البيانات الذي ليس له عناصر بيانات تابعة يُسمى عنصراً أولياً.", false],
+    ["A data item that is composed of one or more subordinate data items is called a group item.", "عنصر البيانات المؤلَّف من عنصر بيانات تابع واحد أو أكثر يُسمى عنصر مجموعة.", false],
+    ["The logical or mathematical model of a particular organization of data is called a data structure.", "النموذج المنطقي أو الرياضي لتنظيم معين للبيانات يُسمى هيكل بيانات.", false],
+    ["A data structure is an arrangement of data in a computer's memory or even disk storage.", "هيكل البيانات هو ترتيب البيانات في ذاكرة الحاسوب أو حتى في وحدة التخزين.", false],
+    ["Data structure is the method to store and organize data to facilitate access and modifications.", "هيكل البيانات هو الأسلوب لتخزين البيانات وتنظيمها لتسهيل الوصول إليها وتعديلها.", false],
+    ["Algorithm + Data Structure = Program (Algorithms + Data Structures = Programs).", "خوارزمية + هيكل بيانات = برنامج (الخوارزميات + هياكل البيانات = برامج).", false],
+    ["1.6 Data Type", "١.٦ نوع البيانات", true],
+    ["A data type is a classification of data, which can store a specific type of information.", "نوع البيانات هو تصنيف للبيانات يمكنه تخزين نوع محدد من المعلومات.", false],
+    ["Data types are primarily used in computer programming, in which variables are created to store data.", "تُستخدم أنواع البيانات بشكل أساسي في برمجة الحاسوب، حيث تُنشأ المتغيّرات لتخزين البيانات.", false],
+    ["Each variable is assigned a data type that determines what type of data the variable may contain.", "يُخصَّص لكل متغيّر نوع بيانات يحدّد نوع البيانات التي يمكن أن يحتويها المتغيّر.", false],
+    ["Basic data types or primitive data types: Integer (positive or negative without fractional part), Real (contains decimal part), Boolean (TRUE or FALSE), Character (single unit of storage), String (text data, alphabetic or numeric).", "أنواع البيانات الأساسية أو البدائية: صحيح (عدد موجب أو سالب بدون جزء كسري)، حقيقي (يحتوي على جزء عشري)، منطقي (TRUE أو FALSE)، حرف (وحدة تخزين واحدة)، نص (بيانات نصية أبجدية أو رقمية).", false],
+    ["Structured Data Types (Non-Primitive Data Types) are user-defined data types that can store a collection of data values rather than a single value.", "أنواع البيانات الهيكلية (غير البدائية) هي أنواع بيانات يُعرّفها المستخدم يمكنها تخزين مجموعة من القيم بدلاً من قيمة واحدة.", false],
+    ["Examples of structured data types include: Arrays, Records, Lists, Trees, Files.", "أمثلة على أنواع البيانات الهيكلية تشمل: المصفوفات، والسجلات، والقوائم، والأشجار، والملفات.", false],
+    ["An Abstract Data Type (ADT) is a mathematical or logical model that specifies: A collection of data and A set of operations that can be performed on that data.", "النوع المجرد للبيانات (ADT) هو نموذج رياضي أو منطقي يُحدّد: مجموعة من البيانات ومجموعة من العمليات التي يمكن إجراؤها على تلك البيانات.", false],
+    ["An ADT does not specify how the data is stored or how the operations are implemented; it only defines what operations are allowed.", "لا يُحدّد الـ ADT كيفية تخزين البيانات أو كيفية تطبيق العمليات؛ بل يُعرّف فقط العمليات المسموح بها.", false],
+    ["1.7 Type of Data Structures", "١.٧ أنواع هياكل البيانات", true],
+    ["Data structures are broadly classified into two types: (i) Primitive data structure and (ii) Non-primitive data structure.", "تُصنَّف هياكل البيانات على نطاق واسع إلى نوعين: (أ) هيكل بيانات بدائي، و(ب) هيكل بيانات غير بدائي.", false],
+    ["1. Primitive data structure: data structures that are directly operated upon by machine level instructions. Examples: Integers, Real numbers, Characters and pointers.", "١. هيكل البيانات البدائي: هياكل البيانات التي تعمل عليها مباشرةً تعليمات مستوى الآلة. أمثلة: الأعداد الصحيحة والأعداد الحقيقية والأحرف والمؤشرات.", false],
+    ["2. Non primitive data structure: created by the programmer. Derived from primitive data structures. Examples: Array, Stack, Queues, Linked list, Tree, Graphs and hash table.", "٢. هيكل البيانات غير البدائي: يُنشئه المبرمج. مشتق من هياكل البيانات البدائية. أمثلة: مصفوفة، مكدس، طابور، قائمة مترابطة، شجرة، رسم بياني، جدول تجزئة.", false],
+    ["(a) Linear Data Structures: In linear data structure the elements are stored in sequential order.", "(أ) هياكل البيانات الخطية: في هيكل البيانات الخطي تُخزَّن العناصر بترتيب تسلسلي.", false],
+    ["(i) Array: A collection of elements of the same data type, stored in consecutive (contiguous) memory locations, referenced using a single common name.", "(أ) المصفوفة: مجموعة من العناصر من نفس نوع البيانات، مُخزَّنة في مواقع ذاكرة متتالية (متجاورة)، يُشار إليها باسم مشترك واحد.", false],
+    ["Key Characteristics of Arrays: 1. Homogeneous Elements, 2. Contiguous Memory Allocation, 3. Fixed Size, 4. Indexed Access (O(1) using index).", "الخصائص الرئيسية للمصفوفات: ١. عناصر متجانسة، ٢. تخصيص ذاكرة متجاورة، ٣. حجم ثابت، ٤. وصول مُفهرَس (O(1) باستخدام الفهرس).", false],
+    ["(ii) Stack: A linear data structure that follows the Last-In-First-Out (LIFO) or equivalently First-In-Last-Out (FILO) principle.", "(ب) المكدس: هيكل بيانات خطي يتّبع مبدأ «الأخير داخلاً الأول خارجاً» (LIFO) أو بالمعنى نفسه «الأول داخلاً الأخير خارجاً» (FILO).", false],
+    ["(iii) Queue: A linear data structure that follows the First-In-First-Out (FIFO) or equivalently Last-In-Last-Out (LILO) principle.", "(ج) الطابور: هيكل بيانات خطي يتّبع مبدأ «الأول داخلاً الأول خارجاً» (FIFO) أو «الأخير داخلاً الأخير خارجاً» (LILO).", false],
+    ["(iv) Linked List: A collection of data elements where items are not stored in consecutive memory locations. Each element (node) consists of two parts: Data and Link (pointer) to the next node.", "(د) القائمة المترابطة: مجموعة من عناصر البيانات حيث لا تُخزَّن العناصر في مواقع ذاكرة متتالية. يتكوّن كل عنصر (عقدة) من جزأين: البيانات والرابط (المؤشر) إلى العقدة التالية.", false],
+    ["(b) Non-Linear Data Structure: elements stored based on hierarchical or non-sequential relationship. Examples: Trees and Graphs.", "(ب) هيكل البيانات غير الخطي: العناصر مُخزَّنة استناداً إلى علاقة هرمية أو غير تسلسلية. أمثلة: الأشجار والرسوم البيانية.", false],
+    ["(i) Tree: A non-linear data structure used to represent data that has a hierarchical relationship. Components: Root (topmost node), Parent, Child, Leaf.", "(أ) الشجرة: هيكل بيانات غير خطي يُستخدم لتمثيل البيانات التي لها علاقة هرمية. المكونات: الجذر (أعلى عقدة)، الأب، الابن، الورقة.", false],
+    ["(ii) Graph: A non-linear data structure used to represent data where relationship between elements is not necessarily hierarchical. Consists of vertices (nodes) and edges (connections).", "(ب) الرسم البياني: هيكل بيانات غير خطي يُستخدم لتمثيل بيانات حيث العلاقة بين العناصر ليست بالضرورة هرمية. يتكوّن من رؤوس (عقد) وحواف (روابط).", false],
+    ["1.8 REPRESENTATION OF DATA STRUCTURES", "١.٨ تمثيل هياكل البيانات", true],
+    ["1. SEQUENTIAL REPRESENTATION (Contiguous/Array-based): Elements stored in consecutive memory locations, Fixed Size, Direct Access (via index), Implicit Relationships.", "١. التمثيل التسلسلي (المتجاور/القائم على المصفوفة): العناصر مُخزَّنة في مواقع ذاكرة متتالية، حجم ثابت، وصول مباشر (عبر الفهرس)، علاقات ضمنية.", false],
+    ["Mathematical Model: Address(A[i]) = base + i × s (where base is the starting address and s is the element size).", "النموذج الرياضي: عنوان(A[i]) = base + i × s (حيث base هو عنوان البداية وs هو حجم العنصر).", false],
+    ["Advantages of Sequential Representation: Fast Random Access O(1), Cache Friendly, Memory Efficient, Simple Implementation.", "مزايا التمثيل التسلسلي: وصول عشوائي سريع O(1)، صديق للذاكرة المؤقتة، كفاءة عالية في الذاكرة، تطبيق بسيط.", false],
+    ["Disadvantages of Sequential Representation: Fixed Size, Inefficient Insertions/Deletions (O(n)), Memory Waste, Fragmentation.", "عيوب التمثيل التسلسلي: حجم ثابت، إدراج وحذف غير فعّالين (O(n))، هدر في الذاكرة، التجزّؤ.", false],
+    ["2. LINKED REPRESENTATION (Pointer-based): Dynamic Allocation, Non-contiguous, Explicit Links via pointers, Variable Size.", "٢. التمثيل المترابط (القائم على المؤشرات): تخصيص ديناميكي، غير متجاور، روابط صريحة عبر المؤشرات، حجم متغيّر.", false],
+    ["Advantages of Linked Representation: Dynamic Sizing, Efficient Insertions/Deletions O(1), Memory Utilization, Flexible Structures.", "مزايا التمثيل المترابط: حجم ديناميكي، إدراج وحذف فعّالان O(1)، استثمار أمثل للذاكرة، هياكل مرنة.", false],
+    ["Disadvantages of Linked Representation: Memory Overhead (for pointers), Sequential Access O(n), Cache Unfriendly, Complexity in implementation.", "عيوب التمثيل المترابط: عبء الذاكرة (للمؤشرات)، وصول تسلسلي O(n)، غير صديق للذاكرة المؤقتة، تعقيد في التطبيق.", false],
+    ["3. HYBRID REPRESENTATIONS: Modern systems often combine both approaches. Examples: Dynamic Arrays (Vectors), Hash Tables (Array of linked lists), B-trees.", "٣. التمثيلات الهجينة: تجمع الأنظمة الحديثة في الغالب كلا النهجين. أمثلة: المصفوفات الديناميكية (Vectors)، جداول التجزئة (مصفوفة من القوائم المترابطة)، أشجار B.", false],
+    ["1.9 Data structure Operations", "١.٩ عمليات هيكل البيانات", true],
+    ["Insertion: provides the means for adding new details or new node into the existing data structure.", "الإدراج: يوفّر وسيلة إضافة تفاصيل جديدة أو عقدة جديدة إلى هيكل البيانات القائم.", false],
+    ["Deletion: provides the means for removing a node from the data structure.", "الحذف: يوفّر وسيلة إزالة عقدة من هيكل البيانات.", false],
+    ["Traversing: provides the means for accessing each node exactly once so that the nodes can be processed. Also called visiting the data structure.", "الاجتياز: يوفّر وسيلة الوصول إلى كل عقدة مرة واحدة تماماً حتى يمكن معالجة العقد. يُسمى أيضاً زيارة هيكل البيانات.", false],
+    ["Searching: provides the means for finding the location of a node for a given key value or finding locations of all records which satisfy one or more conditions.", "البحث: يوفّر وسيلة إيجاد موقع عقدة لقيمة مفتاح معينة أو إيجاد مواقع جميع السجلات التي تستوفي شرطاً أو أكثر.", false],
+    ["Sorting: provides the means for arranging the data in a particular order in the given data structure.", "الترتيب: يوفّر وسيلة ترتيب البيانات بترتيب معين في هيكل البيانات المعطى.", false],
+    ["Merging: provides the means for joining two data structures.", "الدمج: يوفّر وسيلة دمج هيكلَي بيانات.", false],
+    ["Summary — Chapter 1", "ملخص — الفصل الأول", true],
+    ["Data structures are fundamental concepts in computer science that define how data is organized, stored, and managed in a computer to enable efficient access and modification.", "هياكل البيانات مفاهيم أساسية في علوم الحاسوب تُحدّد كيفية تنظيم البيانات وتخزينها وإدارتها في الحاسوب لتمكين الوصول إليها وتعديلها بكفاءة.", false],
+    ["They work hand-in-hand with algorithms, as a program is essentially an algorithm applied to a specific data structure.", "وهي تعمل جنباً إلى جنب مع الخوارزميات، إذ البرنامج في جوهره خوارزمية تُطبَّق على هيكل بيانات محدد.", false],
+    ["Algorithms are step-by-step procedures to process data, and their performance is measured using time complexity and space complexity, evaluated in best, average, and worst cases.", "الخوارزميات هي إجراءات خطوة بخطوة لمعالجة البيانات، ويُقاس أداؤها باستخدام التعقيد الزمني والمكاني، مُقيَّمةً في الحالة المثلى والمتوسطة والأسوأ.", false],
+  ],
+
+  ch2: [
+    ["CHAPTER 2 — Memory Management", "الفصل الثاني — إدارة الذاكرة", true],
+    ["Memory management is the systematic process of controlling and coordinating how computer memory is allocated and deallocated to programs, variables, and data structures.", "إدارة الذاكرة هي العملية المنهجية للتحكم في كيفية تخصيص ذاكرة الحاسوب وإلغاء تخصيصها للبرامج والمتغيّرات وهياكل البيانات وتنسيق ذلك.", false],
+    ["This ensures optimal performance, prevents memory wastage, and enables efficient handling of data ranging from bytes to terabytes.", "يضمن ذلك الأداء الأمثل ويمنع هدر الذاكرة ويُمكّن من التعامل الفعّال مع البيانات التي تتراوح من البايتات إلى تيرابايتات.", false],
+    ["Three Main Memory Regions:", "ثلاث مناطق ذاكرة رئيسية:", true],
+    ["1. Static / Global Memory Region: Fixed memory area allocated at compile time. Lifetime: Entire program execution. Size: Determined at compile time, fixed during runtime. Initialization: Zero-initialized by default.", "١. منطقة الذاكرة الثابتة / العامة: منطقة ذاكرة ثابتة تُخصَّص وقت التجميع. العمر: طوال تشغيل البرنامج. الحجم: يُحدَّد وقت التجميع وثابت خلال وقت التشغيل. التهيئة: تُهيَّأ بالصفر افتراضياً.", false],
+    ["2. Stack Memory: Organization: LIFO structure. Allocation: Automatic (compiler-managed). Speed: Very fast (just pointer manipulation). Size: Limited (typically 1-8 MB). Lifetime: Function/block scope.", "٢. ذاكرة المكدس: التنظيم: هيكل LIFO. التخصيص: تلقائي (تديره المترجِم). السرعة: سريعة جداً (مجرد معالجة مؤشرات). الحجم: محدود (عادةً 1-8 MB). العمر: نطاق الدالة/الكتلة.", false],
+    ["3. Heap Memory (Dynamic Memory): Organization: Free-form, managed by programmer. Allocation: Manual (programmer controls). Speed: Slower than stack (system calls involved). Size: Large (limited by available RAM + virtual memory). Fragmentation: Can suffer from external/internal fragmentation.", "٣. ذاكرة الكومة (الذاكرة الديناميكية): التنظيم: حر، تديره المبرمج. التخصيص: يدوي (تتحكم فيه المبرمج). السرعة: أبطأ من المكدس (تتضمن استدعاءات نظام). الحجم: كبير (محدود بـ RAM المتاحة + الذاكرة الافتراضية). التجزّؤ: قد تعاني من التجزّؤ الخارجي/الداخلي.", false],
+    ["2.2 Why is Memory Management Required?", "٢.٢ لماذا تُطلب إدارة الذاكرة؟", true],
+    ["Arrays store homogeneous data, and usually, memory for an array is allocated at the time of its declaration.", "تُخزِّن المصفوفات بيانات متجانسة، وعادةً تُخصَّص الذاكرة للمصفوفة وقت إعلانها.", false],
+    ["However, sometimes the exact memory size is not known until runtime.", "غير أنه في بعض الأحيان لا يُعرف الحجم الدقيق للذاكرة حتى وقت التشغيل.", false],
+    ["To prevent memory wastage, we use the new operator in C++ to dynamically allocate memory at runtime.", "لمنع هدر الذاكرة، نستخدم عامل التشغيل new في C++ لتخصيص الذاكرة ديناميكياً وقت التشغيل.", false],
+    ["2.3 Memory Management Operators", "٢.٣ عوامل تشغيل إدارة الذاكرة", true],
+    ["In C, dynamic memory is managed using functions: malloc() – allocates memory at runtime. calloc() – allocates memory and initializes it to zero. free() – deallocates the allocated memory.", "في لغة C، تُدار الذاكرة الديناميكية باستخدام دوال: malloc() – تُخصِّص الذاكرة وقت التشغيل. calloc() – تُخصِّص الذاكرة وتُهيئها بالصفر. free() – تُلغي تخصيص الذاكرة المُخصَّصة.", false],
+    ["C++ supports these functions but also provides operators: new – allocates memory dynamically. delete – deallocates memory.", "تدعم C++ هذه الدوال لكنها توفّر أيضاً عوامل تشغيل: new – يُخصِّص الذاكرة ديناميكياً. delete – يُلغي تخصيص الذاكرة.", false],
+    ["A new operator is used to create the object while a delete operator is used to delete the object.", "يُستخدم عامل التشغيل new لإنشاء الكائن بينما يُستخدم عامل التشغيل delete لحذف الكائن.", false],
+    ["Syntax: pointer_variable = new data-type", "البنية: pointer_variable = new data-type", false],
+    ["Example: int* p = new int; — p is a pointer to an integer that stores the address of a dynamically allocated integer in memory.", "مثال: int* p = new int; — p هو مؤشر إلى عدد صحيح يُخزِّن عنوان عدد صحيح مُخصَّص ديناميكياً في الذاكرة.", false],
+    ["Two ways of assigning values to the newly created object: 1. Using assignment operator (*p = 45;). 2. Using new operator (int* p = new int(45);).", "طريقتان لتعيين قيم للكائن المُنشأ حديثاً: ١. باستخدام عامل الإسناد (*p = 45;). ٢. باستخدام عامل new (int* p = new int(45);).", false],
+    ["Creating a Single-Dimensional Array Using new: Syntax: pointer_variable = new data_type[size]; Example: int* a1 = new int[8];", "إنشاء مصفوفة أحادية البُعد باستخدام new: البنية: pointer_variable = new data_type[size]; مثال: int* a1 = new int[8];", false],
+    ["Deleting Dynamically Allocated Memory: For single objects: delete pointer_variable; For arrays: delete [] pointer_variable;", "حذف الذاكرة المُخصَّصة ديناميكياً: للكائنات المفردة: delete pointer_variable; للمصفوفات: delete [] pointer_variable;", false],
+    ["1. Memory Leaks: A memory leak occurs when dynamically allocated memory is not properly deallocated using delete or free(). Causes wasted memory, slows down programs, and can eventually crash them.", "١. تسرّب الذاكرة: يحدث تسرّب الذاكرة عندما لا تُلغى تخصيصات الذاكرة الديناميكية بشكل صحيح باستخدام delete أو free(). يُسبّب هدر الذاكرة ويُبطئ البرامج وقد يتسبب في انهيارها.", false],
+    ["2. Dangling Pointers: A dangling pointer points to memory that has already been freed. Accessing such memory can cause undefined behavior or program crashes. Solution: Set pointer to nullptr after deletion.", "٢. المؤشرات المتدلية: المؤشر المتدلي يشير إلى ذاكرة تم تحريرها بالفعل. الوصول إلى هذه الذاكرة قد يُسبّب سلوكاً غير معرَّف أو انهيار البرنامج. الحل: ضبط المؤشر على nullptr بعد الحذف.", false],
+    ["3. malloc() vs new: malloc() returns void* (no type checking, no constructor call, returns NULL on failure). new returns correct pointer type, calls constructor, throws std::bad_alloc on failure.", "٣. malloc() مقابل new: تُعيد malloc() مؤشراً void* (بدون فحص نوع، بدون استدعاء بنّاء، تُعيد NULL عند الفشل). تُعيد new مؤشراً من النوع الصحيح، وتستدعي البنّاء، وتُطلق std::bad_alloc عند الفشل.", false],
+    ["4. free() vs delete: free() is a function (no object deletion). delete is an operator (calls destructor, use delete[] for arrays).", "٤. free() مقابل delete: free() دالة (لا تحذف الكائن). delete عامل تشغيل (يستدعي المُدمِّر، استخدم delete[] للمصفوفات).", false],
+    ["Best Practices for Dynamic Memory Management: Always delete memory allocated with new. Use delete [] for arrays. Initialize pointers to nullptr after deletion. Avoid memory leaks and dangling pointers. Use smart pointers (std::unique_ptr, std::shared_ptr) in modern C++.", "أفضل الممارسات لإدارة الذاكرة الديناميكية: احذف دائماً الذاكرة المُخصَّصة بـ new. استخدم delete [] للمصفوفات. هيئ المؤشرات بـ nullptr بعد الحذف. تجنّب تسرّب الذاكرة والمؤشرات المتدلية. استخدم المؤشرات الذكية في C++ الحديثة.", false],
+    ["Summary — Chapter 2: Memory management focuses on efficient allocation and deallocation of memory. Main regions: static, stack, and heap. Key operators: new and delete in C++. Common problems: memory leaks and dangling pointers.", "ملخص — الفصل الثاني: تُركّز إدارة الذاكرة على التخصيص وإلغاء التخصيص الفعّال للذاكرة. المناطق الرئيسية: الثابتة والمكدس والكومة. العوامل الرئيسية: new وdelete في C++. المشكلات الشائعة: تسرّب الذاكرة والمؤشرات المتدلية.", false],
+  ],
+
+  ch3: [
+    ["CHAPTER 3 — ARRAY & LIST", "الفصل الثالث — المصفوفة والقائمة", true],
+    ["1.1 What is Array in Data Structure?", "١.١ ما المصفوفة في هياكل البيانات؟", true],
+    ["Arrays in data structures help solve some high-level problems like the 'longest consecutive subsequence' program or some easy tasks like arranging the same things in ascending order.", "تساعد المصفوفات في هياكل البيانات على حل مشكلات رفيعة المستوى مثل برنامج «أطول متتالية متتابعة» أو مهام بسيطة مثل ترتيب العناصر المتشابهة تصاعدياً.", false],
+    ["The concept is to collect many objects of the same kind.", "المفهوم هو جمع أشياء كثيرة من نفس النوع.", false],
+    ["Characteristics: Fixed Size (size defined at creation, cannot be changed in most traditional implementations). Homogeneous Elements (all elements must be of the same data type). Contiguous Memory (elements stored next to each other). Index-based Access (each element has a unique index, usually starting from 0).", "الخصائص: الحجم الثابت (يُحدَّد الحجم عند الإنشاء ولا يمكن تغييره في معظم التطبيقات التقليدية). العناصر المتجانسة (يجب أن تكون جميع العناصر من نفس نوع البيانات). الذاكرة المتجاورة (العناصر مُخزَّنة بجانب بعضها). الوصول المُفهرَس (لكل عنصر فهرس فريد يبدأ عادةً من 0).", false],
+    ["An array is a linear data structure that collects elements of the same data type and stores them in contiguous and adjacent memory locations.", "المصفوفة هي هيكل بيانات خطي يجمع عناصر من نفس نوع البيانات ويُخزِّنها في مواقع ذاكرة متجاورة ومتلاصقة.", false],
+    ["Arrays work on an index system starting from 0 to (n-1), where n is the size of the array.", "تعمل المصفوفات بنظام فهرسة يبدأ من 0 إلى (n-1)، حيث n هو حجم المصفوفة.", false],
+    ["Why Do You Need an Array in Data Structures?", "لماذا تحتاج إلى مصفوفة في هياكل البيانات؟", true],
+    ["If a class consists of ten students and the class has to publish their results, declaring all ten variables individually would be challenging to manipulate and maintain.", "إذا كان الفصل يضم عشرة طلاب ويجب نشر نتائجهم، فإن الإعلان عن جميع المتغيّرات العشرة بشكل فردي سيكون أمراً صعب المعالجة والصيانة.", false],
+    ["To overcome this problem, arrays came into the picture.", "لحل هذه المشكلة، جاءت المصفوفات إلى الواجهة.", false],
+    ["1.3 Types of Arrays in Data Structures", "١.٣ أنواع المصفوفات في هياكل البيانات", true],
+    ["1. One-Dimensional Array (1D Array): Stores elements in a single linear sequence. Example: int arr[5] = {10, 20, 30, 40, 50};", "١. المصفوفة الأحادية البُعد (مصفوفة 1D): تُخزِّن العناصر في تسلسل خطي واحد. مثال: int arr[5] = {10, 20, 30, 40, 50};", false],
+    ["2. Two-Dimensional Array (2D Array): Stores elements in rows and columns (matrix form). Example: int matrix[2][3] = { {1,2,3}, {4,5,6} };", "٢. المصفوفة ثنائية البُعد (مصفوفة 2D): تُخزِّن العناصر في صفوف وأعمدة (شكل مصفوفة). مثال: int matrix[2][3] = { {1,2,3}, {4,5,6} };", false],
+    ["3. Multi-Dimensional Array: Arrays with more than two dimensions. Example: int arr[2][2][3]; Used in complex data structures like 3D graphics and scientific computing.", "٣. المصفوفة متعددة الأبعاد: مصفوفات بأكثر من بُعدين. مثال: int arr[2][2][3]; تُستخدم في هياكل البيانات المعقدة مثل الرسوميات ثلاثية الأبعاد والحوسبة العلمية.", false],
+    ["4. Static Array: Size is fixed at compile time. Example: int arr[10]; Faster but Fixed size.", "٤. المصفوفة الثابتة: حجمها ثابت وقت التجميع. مثال: int arr[10]; أسرع لكن الحجم ثابت.", false],
+    ["5. Dynamic Array: Size is allocated at runtime. Example (C++): int* arr = new int[n]; Flexible size but Needs memory management.", "٥. المصفوفة الديناميكية: يُخصَّص حجمها وقت التشغيل. مثال (C++): int* arr = new int[n]; حجم مرن لكن تحتاج إلى إدارة الذاكرة.", false],
+    ["6. Jagged Array: An array of arrays where each row has different size. Common in advanced applications.", "٦. المصفوفة المتشعبة: مصفوفة من المصفوفات حيث يملك كل صف حجماً مختلفاً. شائعة في التطبيقات المتقدمة.", false],
+    ["How Can You Access Elements of Arrays in Data Structures?", "كيف تصل إلى عناصر المصفوفات في هياكل البيانات؟", true],
+    ["You can access elements with the help of the index at which you stored them.", "يمكنك الوصول إلى العناصر بمساعدة الفهرس الذي خزّنتها فيه.", false],
+    ["1.4 Operations of an Array: Traversal, Insertion, Deletion, Searching, Sorting.", "١.٤ عمليات المصفوفة: الاجتياز، الإدراج، الحذف، البحث، الترتيب.", true],
+    ["Traversal in an array is a process of visiting each element once.", "الاجتياز في المصفوفة هو عملية زيارة كل عنصر مرة واحدة.", false],
+    ["Insertion in an array is the process of including one or more elements in an array. Insertion can be done: At the beginning, At the end, and At any given index of an array.", "الإدراج في المصفوفة هو عملية تضمين عنصر أو أكثر في مصفوفة. يمكن الإدراج: في البداية، وفي النهاية، وعند أي فهرس محدد في المصفوفة.", false],
+    ["Deletion of an element is the process of removing the desired element and re-organizing it. You can also do deletion: At the beginning or At the end.", "حذف العنصر هو عملية إزالة العنصر المطلوب وإعادة تنظيم المصفوفة. يمكن الحذف: من البداية أو من النهاية.", false],
+    ["The method of searching for a specific value in an array is known as searching. There are two ways: Linear search and Binary search.", "طريقة البحث عن قيمة محددة في المصفوفة تُعرف بالبحث. هناك طريقتان: البحث الخطي والبحث الثنائي.", false],
+    ["Linear Search: Scan each element one by one until the target is found or the array ends. Time complexity: O(n).", "البحث الخطي: يفحص كل عنصر واحداً تلو الآخر حتى يجد الهدف أو تنتهي المصفوفة. التعقيد الزمني: O(n).", false],
+    ["Sorting in an array is the process in which it sorts elements in a user-defined order.", "الترتيب في المصفوفة هو العملية التي تُرتِّب العناصر بترتيب يُحدّده المستخدم.", false],
+    ["1.5 Advantages of Arrays in Data Structures:", "١.٥ مزايا المصفوفات في هياكل البيانات:", true],
+    ["Arrays store multiple elements of the same type with the same name.", "تُخزِّن المصفوفات عناصر متعددة من نفس النوع تحت نفس الاسم.", false],
+    ["You can randomly access elements in the array using an index number.", "يمكنك الوصول العشوائي إلى عناصر المصفوفة باستخدام رقم الفهرس.", false],
+    ["Array memory is predefined, so there is no extra memory loss.", "ذاكرة المصفوفة مُحدَّدة مسبقاً، لذلك لا يوجد هدر إضافي في الذاكرة.", false],
+    ["Arrays avoid memory overflow.", "تتجنب المصفوفات تجاوز الذاكرة.", false],
+    ["2D arrays can efficiently represent the tabular data.", "يمكن للمصفوفات ثنائية البُعد تمثيل البيانات الجدولية بكفاءة.", false],
+    ["Disadvantages of Arrays in Data Structures:", "عيوب المصفوفات في هياكل البيانات:", true],
+    ["The number of elements in an array should be predefined.", "يجب تحديد عدد عناصر المصفوفة مسبقاً.", false],
+    ["An array is static. It cannot alter its size after declaration.", "المصفوفة ثابتة. لا يمكنها تغيير حجمها بعد الإعلان.", false],
+    ["Insertion and deletion operation in an array is quite tricky as the array stores elements in continuous form.", "عملية الإدراج والحذف في المصفوفة صعبة بعض الشيء لأنها تُخزِّن العناصر بشكل متواصل.", false],
+    ["Allocating excess memory than required may lead to memory wastage.", "تخصيص ذاكرة أكثر من المطلوب قد يؤدي إلى هدر الذاكرة.", false],
+  ],
+
+  ch4: [
+    ["CHAPTER 4 — The Stack – Data Structure", "الفصل الرابع — المكدس – هيكل البيانات", true],
+    ["A Stack is a linear data structure that follows a particular order in which the operations are performed.", "المكدس هو هيكل بيانات خطي يتّبع ترتيباً معيناً تُنفَّذ فيه العمليات.", false],
+    ["The order may be LIFO (Last In First Out) or FILO (First In Last Out).", "الترتيب قد يكون LIFO (الأخير داخلاً الأول خارجاً) أو FILO (الأول داخلاً الأخير خارجاً).", false],
+    ["LIFO implies that the element that is inserted last, comes out first.", "LIFO يعني أن العنصر الذي يُدرج أخيراً يخرج أولاً.", false],
+    ["FILO implies that the element that is inserted first, comes out last.", "FILO يعني أن العنصر الذي يُدرج أولاً يخرج أخيراً.", false],
+    ["It behaves like a stack of plates, where the last plate added is the first one to be removed.", "يتصرّف كمجموعة من الأطباق المتراصة، حيث الطبق الأخير المُضاف هو أول ما يُزال.", false],
+    ["Pushing an element onto the stack is like adding a new plate on top.", "دفع عنصر إلى المكدس يشبه إضافة طبق جديد في الأعلى.", false],
+    ["Popping an element removes the top plate from the stack.", "سحب عنصر يُزيل الطبق العلوي من المكدس.", false],
+    ["LIFO Principle: New elements are always pushed on top. Removal (pop) also happens only from the top. This ensures a strict order: last in → first out.", "مبدأ LIFO: تُضاف العناصر الجديدة دائماً في الأعلى. الإزالة (pop) تحدث أيضاً من الأعلى فقط. هذا يضمن ترتيباً صارماً: الأخير داخلاً ← الأول خارجاً.", false],
+    ["Basic Terminologies of Stack:", "المصطلحات الأساسية للمكدس:", true],
+    ["Top: The position of the most recently inserted element. Insertions (push) and deletions (pop) are always performed at the top.", "القمة: موضع أحدث عنصر مُدرَج. الإدراجات (push) والحذف (pop) تُنفَّذ دائماً عند القمة.", false],
+    ["Size: Refers to the current number of elements present in the stack.", "الحجم: يُشير إلى العدد الحالي للعناصر الموجودة في المكدس.", false],
+    ["Types of Stack: 1. Fixed Size Stack — has a predefined capacity; overflow occurs when full, underflow when empty; implemented using static array. 2. Dynamic Size Stack — grows/shrinks automatically; implemented using linked list or dynamic array.", "أنواع المكدس: ١. مكدس ذو حجم ثابت — له سعة محدّدة مسبقاً؛ تجاوز عند الامتلاء وفيضان سالب عند الفراغ؛ يُنفَّذ باستخدام مصفوفة ثابتة. ٢. مكدس ذو حجم ديناميكي — ينمو ويتقلّص تلقائياً؛ يُنفَّذ باستخدام قائمة مترابطة أو مصفوفة ديناميكية.", false],
+    ["4.1 OPERATIONS PERFORMED ON STACK", "٤.١ العمليات التي تُنفَّذ على المكدس", true],
+    ["1) PUSH: Adds a new element to the top of the stack. After a push, the top pointer increases by 1. If the stack is full, a stack overflow occurs.", "١) الدفع (PUSH): يُضيف عنصراً جديداً إلى قمة المكدس. بعد الدفع، يزيد مؤشر القمة بمقدار 1. إذا كان المكدس ممتلئاً، يحدث تجاوز المكدس (Stack Overflow).", false],
+    ["2) Accessing Elements: Only the top element of the stack can be accessed using top() method. Peek() is used to only view the topmost element of the stack without printing it.", "٢) الوصول إلى العناصر: يمكن الوصول فقط إلى العنصر العلوي للمكدس باستخدام طريقة top(). تُستخدم Peek() لعرض العنصر العلوي فقط دون طباعته.", false],
+    ["3) POP: Removes the topmost element from the stack. After a pop, the top pointer decreases by 1. If the stack is empty, a stack underflow occurs.", "٣) السحب (POP): يُزيل العنصر العلوي من المكدس. بعد السحب، يقل مؤشر القمة بمقدار 1. إذا كان المكدس فارغاً، يحدث نقص المكدس (Stack Underflow).", false],
+    ["4) empty(): Checks whether the stack is empty. Returns true if the stack has no elements, otherwise returns false.", "٤) empty(): يتحقق مما إذا كان المكدس فارغاً. يُعيد true إذا لم يكن في المكدس عناصر، وإلا يُعيد false.", false],
+    ["5) Size of stack: The size() function returns the number of elements currently in the stack.", "٥) حجم المكدس: تُعيد دالة size() عدد العناصر الموجودة حالياً في المكدس.", false],
+    ["6) Pseudo Traversal: A stack cannot be directly traversed, but by creating a copy and repeatedly accessing and popping the top element, we can traverse it without modifying the original stack.", "٦) الاجتياز الزائف: لا يمكن اجتياز المكدس مباشرةً، لكن بإنشاء نسخة والوصول المتكرر إلى العنصر العلوي وسحبه، يمكن اجتيازه دون تعديل المكدس الأصلي.", false],
+    ["3. Stack Implementation: 3.1 Using Arrays (Static Implementation): Simple but fixed size. Memory is allocated in advance.", "٣. تطبيق المكدس: ٣.١ باستخدام المصفوفات (التطبيق الثابت): بسيط لكن بحجم ثابت. الذاكرة تُخصَّص مسبقاً.", false],
+    ["Limitations of static stack: Memory may be wasted if the array is not full. Cannot increase size if more elements are needed.", "قيود المكدس الثابت: قد تُهدر الذاكرة إذا لم تكن المصفوفة ممتلئة. لا يمكن زيادة الحجم إذا احتجنا المزيد من العناصر.", false],
+    ["3.2 Using Pointers / Linked List (Dynamic Implementation): Flexible size, memory allocated dynamically. No fixed limit unless system memory runs out.", "٣.٢ باستخدام المؤشرات / القوائم المترابطة (التطبيق الديناميكي): حجم مرن، الذاكرة تُخصَّص ديناميكياً. لا حد ثابت ما لم تنفد ذاكرة النظام.", false],
+    ["4. APPLICATIONS OF STACKS: A stack follows the LIFO principle, which makes it ideal for: Recursion, Expression evaluation, Parenthesis checking.", "٤. تطبيقات المكدسات: يتّبع المكدس مبدأ LIFO مما يجعله مثالياً لـ: العودية، وتقييم التعابير، وفحص الأقواس.", false],
+    ["4.1 Recursion: Recursion occurs when a function calls itself until a base condition is satisfied.", "٤.١ العودية: تحدث العودية عندما تستدعي دالة نفسها حتى يتحقق شرط الأساس.", false],
+    ["Every recursive function consists of: A base case (stopping condition) and A recursive case (function calls itself).", "تتكوّن كل دالة عودية من: حالة أساسية (شرط التوقف) وحالة عودية (الدالة تستدعي نفسها).", false],
+    ["General Model of a Recursive Function: 1. Prologue (Save parameters, local variables, return address — pushed onto stack). 2. Body (Check base condition, perform computation or recursive call). 3. Epilogue (Restore parameters, local variables, return address — popped from stack).", "النموذج العام للدالة العودية: ١. المقدمة (حفظ المعاملات والمتغيّرات المحلية وعنوان الإعادة — تُدفع إلى المكدس). ٢. الجسم (فحص شرط الأساس، تنفيذ العملية الحسابية أو الاستدعاء العودي). ٣. الخاتمة (استعادة المعاملات والمتغيّرات المحلية وعنوان الإعادة — تُسحب من المكدس).", false],
+    ["Why Stack is Ideal for Recursion: Recursive calls are completed in reverse order. The last function called finishes first. This exactly matches LIFO behavior.", "لماذا المكدس مثالي للعودية: تكتمل الاستدعاءات العودية بترتيب عكسي. الدالة الأخيرة المُستدعاة تنتهي أولاً. هذا يتطابق تماماً مع سلوك LIFO.", false],
+    ["Stack Operation Example: Input number = 4 → Calls: fact(4,1) → fact(3,4) → fact(2,12) → fact(1,24) (Base Case). Last call executes first — LIFO principle.", "مثال على عملية المكدس: الإدخال رقم = 4 → الاستدعاءات: fact(4,1) → fact(3,4) → fact(2,12) → fact(1,24) (الحالة الأساسية). الاستدعاء الأخير يُنفَّذ أولاً — مبدأ LIFO.", false],
+    ["Advantages of Recursion: 1. Simple and Clear Code. 2. Useful for Divide and Conquer Problems. 3. Reduces Code Complexity. 4. Easy Implementation of Data Structures. 5. Improves Program Readability. 6. Automatic Stack Management.", "مزايا العودية: ١. كود بسيط وواضح. ٢. مفيدة لمسائل القسمة والغلبة. ٣. تقلّل تعقيد الكود. ٤. تطبيق سهل لهياكل البيانات. ٥. تحسّن قابلية قراءة البرنامج. ٦. إدارة تلقائية للمكدس.", false],
+    ["Disadvantages of Recursion: 1. High Memory Consumption. 2. Risk of Stack Overflow. 3. Lower Execution Speed. 4. No Significant Advantage in Some Cases. 5. Possibility of Infinite Recursion. 6. Not Suitable When Iteration Is Enough.", "عيوب العودية: ١. استهلاك عالٍ للذاكرة. ٢. خطر تجاوز المكدس. ٣. سرعة تنفيذ أقل. ٤. لا توفّر ميزة كبيرة في بعض الحالات. ٥. إمكانية العودية اللانهائية. ٦. غير مناسبة عندما تكفي التكرارية.", false],
+    ["4.2 Expressions and Stack Applications", "٤.٢ التعابير وتطبيقات المكدس", true],
+    ["An expression combines operands (data items) and operators. Example: A + B * C.", "التعبير يجمع معاملات (عناصر بيانات) وعوامل تشغيل. مثال: A + B * C.", false],
+    ["Types of Notation: 1. Infix Notation — Operators are between operands (usual math form). Example: A + B. 2. Prefix Notation (Polish Notation) — Operators are before operands. Example: + A B. 3. Postfix Notation (Reverse Polish Notation) — Operators are after operands. Example: A B +", "أنواع الترميز: ١. الترميز الوسطي — العوامل بين المعاملات (الشكل الرياضي المعتاد). مثال: A + B. ٢. الترميز السابق (Polish Notation) — العوامل قبل المعاملات. مثال: + A B. ٣. الترميز اللاحق (Reverse Polish Notation) — العوامل بعد المعاملات. مثال: A B +", false],
+    ["Postfix notation is preferred in computers because it avoids the need for precedence rules and parentheses.", "يُفضَّل الترميز اللاحق في الحاسوب لأنه يتجنّب الحاجة إلى قواعد الأسبقية والأقواس.", false],
+    ["Why Postfix is Suitable for Computers: 1. No need to remember operator precedence or BODMAS rules. 2. Easier to evaluate programmatically. 3. Suitable for ALU design in CPUs. 4. Efficient stack-based calculation.", "لماذا الترميز اللاحق مناسب للحواسيب: ١. لا حاجة لتذكّر أسبقية العوامل أو قواعد BODMAS. ٢. أسهل للتقييم برمجياً. ٣. مناسب لتصميم وحدة ALU في المعالجات. ٤. حساب فعّال قائم على المكدس.", false],
+    ["4.2.1 Converting Infix to Postfix Expression: Example 1: A + B * C → Parenthesize: A + (B * C) → Convert: A + (B C *) → Postfix: A B C * +", "٤.٢.١ تحويل التعابير من الترميز الوسطي إلى اللاحق: مثال ١: A + B * C → وضع الأقواس: A + (B * C) → التحويل: A + (B C *) → الترميز اللاحق: A B C * +", false],
+    ["Rules for Conversion: 1. Parenthesize expressions from left to right. 2. Operators with higher precedence are parenthesized first. 3. A sub-expression converted to postfix is treated as a single operand. 4. Remove parentheses after conversion.", "قواعد التحويل: ١. ضع الأقواس على التعابير من اليسار إلى اليمين. ٢. العوامل ذات الأسبقية الأعلى تُوضع بين أقواس أولاً. ٣. يُعامَل التعبير الفرعي المحوَّل إلى ترميز لاحق كمعامل واحد. ٤. احذف الأقواس بعد التحويل.", false],
+    ["Algorithm: Infix to Postfix Using Stack: 1. Push ( onto stack and append ) to end of expression. 2. Scan left to right. 3. Operand → add to output. 4. Left parenthesis → push. 5. Operator → pop higher/equal precedence, then push. 6. Right parenthesis → pop until left parenthesis.", "خوارزمية: الترميز الوسطي إلى اللاحق باستخدام المكدس: ١. ادفع ( إلى المكدس وأضف ) إلى نهاية التعبير. ٢. امسح من اليسار إلى اليمين. ٣. معامل → أضف إلى المخرج. ٤. قوس يساري → ادفع. ٥. عامل → اسحب عوامل ذات أسبقية أعلى أو مساوية، ثم ادفع. ٦. قوس يميني → اسحب حتى القوس اليساري.", false],
+    ["Evaluating a Postfix Expression Using Stack — Algorithm: 1. Scan from left to right. 2. If operand → push. 3. If operator → pop top two (A and B), compute B ⊗ A, push result. 4. Final result is the top of the stack.", "تقييم تعبير الترميز اللاحق باستخدام المكدس — الخوارزمية: ١. امسح من اليسار إلى اليمين. ٢. إذا كان معاملاً → ادفعه. ٣. إذا كان عاملاً → اسحب اثنين من الأعلى (A وB)، احسب B ⊗ A، ادفع النتيجة. ٤. النتيجة النهائية هي قمة المكدس.", false],
+    ["Example: Postfix 6 3 2 * + 4 - → Steps: Push 6,3,2 → * gives 6 → + gives 12 → Push 4 → - gives 8. Result: 8", "مثال: الترميز اللاحق 6 3 2 * + 4 - → الخطوات: ادفع 6,3,2 → * يعطي 6 → + يعطي 12 → ادفع 4 → - يعطي 8. النتيجة: 8", false],
+  ],
+
+  ch5: [
+    ["CHAPTER 5 — THE QUEUES", "الفصل الخامس — الطوابير", true],
+    ["A Queue Data Structure is a fundamental concept in computer science used for storing and managing data in a specific order.", "الطابور هو مفهوم أساسي في علوم الحاسوب يُستخدم لتخزين البيانات وإدارتها بترتيب معين.", false],
+    ["It follows the principle of 'First in, First out' (FIFO), where the first element added to the queue is the first one to be removed.", "يتّبع مبدأ «الأول داخلاً الأول خارجاً» (FIFO)، حيث يكون أول عنصر يُضاف إلى الطابور أول من يُزال.", false],
+    ["Queue is used as a buffer in computer systems where we have speed mismatch between two devices that communicate with each other.", "يُستخدم الطابور كمخزن مؤقت في أنظمة الحاسوب حيث يوجد عدم تطابق في السرعة بين جهازين يتواصلان.", false],
+    ["Queue is also used in Operating System algorithms like CPU Scheduling and Memory Management, and many standard algorithms like Breadth First Search of Graph.", "يُستخدم الطابور أيضاً في خوارزميات نظام التشغيل مثل جدولة المعالج وإدارة الذاكرة والعديد من الخوارزميات القياسية مثل البحث بالعرض أولاً في الرسم البياني.", false],
+    ["5.1 FIFO Principle in Queue: The first element added to the Queue will be the first one to be removed or processed. Queue is like a line of people waiting to purchase tickets.", "٥.١ مبدأ FIFO في الطابور: أول عنصر يُضاف إلى الطابور سيكون أول من يُزال أو يُعالَج. الطابور يشبه طابور من الناس ينتظرون لشراء تذاكر.", false],
+    ["Basic Terminologies of Queue:", "المصطلحات الأساسية للطابور:", true],
+    ["Front: Position of the entry in a queue ready to be served — the first entry that will be removed from the queue. Also referred to as the head of the queue.", "الأمام: موضع العنصر في الطابور الجاهز للخدمة — أول عنصر سيُزال من الطابور. يُشار إليه أيضاً بـ head (رأس الطابور).", false],
+    ["Rear: Position of the last entry in the queue — the one most recently added. Also referred to as the tail of the queue.", "الخلف: موضع العنصر الأخير في الطابور — أحدث عنصر مُضاف. يُشار إليه أيضاً بـ tail (ذيل الطابور).", false],
+    ["Size: Size refers to the current number of elements in the queue.", "الحجم: يُشير إلى العدد الحالي للعناصر في الطابور.", false],
+    ["Capacity: Capacity refers to the maximum number of elements the queue can hold.", "السعة: تُشير إلى الحد الأقصى لعدد العناصر التي يمكن للطابور استيعابها.", false],
+    ["5.2 Basic Operations:", "٥.٢ العمليات الأساسية:", true],
+    ["1. Inserting Elements: New elements can only be inserted at back of the queue using push() function. The process of inserting elements in a queue is also called enqueue.", "١. إدراج العناصر: لا يمكن إدراج العناصر الجديدة إلا في خلف الطابور باستخدام دالة push(). تُسمى عملية إدراج العناصر في الطابور أيضاً بـ enqueue.", false],
+    ["2. Accessing Elements: Only the front and back elements of the queue can be accessed by using front() and back() functions respectively.", "٢. الوصول إلى العناصر: يمكن الوصول فقط إلى عنصري الأمام والخلف في الطابور باستخدام دالتَي front() وback() على التوالي.", false],
+    ["3. Deleting Elements: Elements can only be deleted from the front of the queue using the pop() function. The process of deleting elements from a queue is also called dequeue.", "٣. حذف العناصر: لا يمكن حذف العناصر إلا من أمام الطابور باستخدام دالة pop(). تُسمى عملية حذف العناصر من الطابور أيضاً بـ dequeue.", false],
+    ["4. empty(): Checks whether the queue is empty. Returns true if the queue has no elements; otherwise, returns false.", "٤. empty(): يتحقق مما إذا كان الطابور فارغاً. يُعيد true إذا لم يكن في الطابور عناصر؛ وإلا يُعيد false.", false],
+    ["5. Size of queue: The size() function returns the number of elements currently in the queue.", "٥. حجم الطابور: تُعيد دالة size() عدد العناصر الموجودة حالياً في الطابور.", false],
+    ["6. Pseudo Traversal: Direct traversal of a queue is not possible because only the front and rear elements can be accessed. Traversal can be performed by creating a copy of the queue.", "٦. الاجتياز الزائف: الاجتياز المباشر للطابور غير ممكن لأنه لا يمكن الوصول إلا إلى عنصري الأمام والخلف. يمكن إجراء الاجتياز بإنشاء نسخة من الطابور.", false],
+    ["Underflow Condition: Underflow occurs when we attempt to remove (dequeue) an element from an empty queue. Trying to dequeue in this case leads to an underflow error.", "حالة النقص (Underflow): يحدث النقص عندما نحاول إزالة عنصر (dequeue) من طابور فارغ. محاولة الإزالة في هذه الحالة تُؤدي إلى خطأ النقص.", false],
+    ["Overflow Condition: Overflow occurs when we attempt to insert (enqueue) an element into a full queue. In simple terms: You cannot insert an element when the queue is full.", "حالة التجاوز (Overflow): يحدث التجاوز عندما نحاول إدراج عنصر (enqueue) في طابور ممتلئ. ببساطة: لا يمكنك إدراج عنصر عندما يكون الطابور ممتلئاً.", false],
+    ["Limitation of Linear Queue: In a linear queue, insertion is always done at the rear end. The rear pointer has already reached the last index. This results in a false overflow condition — queue appears full even though unused spaces exist at the front.", "قيود الطابور الخطي: في الطابور الخطي، الإدراج يتم دائماً عند الخلف. وصل مؤشر الخلف بالفعل إلى الفهرس الأخير. ينتج عن ذلك حالة تجاوز وهمية — يبدو الطابور ممتلئاً رغم وجود مسافات غير مستخدمة في الأمام.", false],
+    ["Solution: Circular Queue — This limitation can be overcome by using a Circular Queue, where the last position of the queue is connected back to the first position.", "الحل: الطابور الدائري — يمكن التغلب على هذا القيد باستخدام الطابور الدائري، حيث يرتبط الموضع الأخير في الطابور بالموضع الأول.", false],
+    ["5.3 Types of Queues: 1. Circular Queue, 2. Double Ended Queue (Deque), 3. Priority Queue.", "٥.٣ أنواع الطوابير: ١. الطابور الدائري، ٢. الطابور ذو الطرفين (Deque)، ٣. الطابور ذو الأولوية.", true],
+    ["5.3.1 Circular Queue: A circular queue is the extended version of a regular queue where the last element is connected to the first element, forming a circle-like structure.", "٥.٣.١ الطابور الدائري: الطابور الدائري هو النسخة الموسّعة من الطابور العادي حيث يرتبط العنصر الأخير بالعنصر الأول مكوّناً هيكلاً يشبه الدائرة.", false],
+    ["Also known as 'Ring buffer' as the resulted data structure is logically circular.", "يُعرف أيضاً بـ «المخزن الحلقي» (Ring buffer) إذ هيكل البيانات الناتج دائري منطقياً.", false],
+    ["Key Formulas: Calculating next insertion position (rear): rear = (rear + 1) % SIZE. Calculating next deletion position (front): front = (front + 1) % SIZE.", "الصيغ الرئيسية: حساب موضع الإدراج التالي (الخلف): rear = (rear + 1) % SIZE. حساب موضع الحذف التالي (الأمام): front = (front + 1) % SIZE.", false],
+    ["Overflow Condition in Circular Queue: If Front = Rear then the queue is full and no more elements can be inserted.", "حالة التجاوز في الطابور الدائري: إذا كان Front = Rear فالطابور ممتلئ ولا يمكن إدراج المزيد من العناصر.", false],
+    ["5.3.2 DEQUES (Double Ended Queues): A Deque is an abstract data structure that allows elements to be added or removed from either the front (head) or back (tail).", "٥.٣.٢ الطوابير ذات الطرفين (Deques): الـ Deque هو هيكل بيانات مجرد يسمح بإضافة أو إزالة العناصر من الأمام (الرأس) أو الخلف (الذيل).", false],
+    ["A Deque can be thought of as a combination of a stack and a queue, supporting both LIFO and FIFO operations.", "يمكن اعتبار الـ Deque مزيجاً من المكدس والطابور، يدعم عمليتَي LIFO وFIFO.", false],
+    ["Types of Deques: 1. Input-Restricted Deque — Insertion at only one end (rear), deletion at both ends. 2. Output-Restricted Deque — Deletion at only one end (front), insertion at both ends.", "أنواع Deques: ١. Deque مقيّد الإدخال — إدراج عند طرف واحد فقط (الخلف)، حذف من كلا الطرفين. ٢. Deque مقيّد الإخراج — حذف من طرف واحد فقط (الأمام)، إدراج من كلا الطرفين.", false],
+    ["Applications of Deque: 1. Palindrome checking. 2. Undo/redo operations. 3. Forward/backward navigation in web browsers. 4. Round-robin scheduling. 5. Sliding window maximum/minimum problems. 6. Certain graph traversal algorithms.", "تطبيقات Deque: ١. فحص المتناظر. ٢. عمليات التراجع والإعادة. ٣. التنقل للأمام والخلف في متصفحات الويب. ٤. الجدولة الدائرية (Round-robin). ٥. مسائل الحد الأقصى/الأدنى للنافذة المتحركة. ٦. بعض خوارزميات اجتياز الرسم البياني.", false],
+    ["Summary — Chapter 5: Queue follows FIFO. Implemented using arrays (static) or linked lists (dynamic). Types: Circular Queue, Deque, Priority Queue. Key operations: enqueue, dequeue, peek, isEmpty, isFull — all O(1). Applications: palindrome checking, sliding window, undo/redo, buffer management, round-robin scheduling.", "ملخص — الفصل الخامس: الطابور يتّبع FIFO. يُنفَّذ باستخدام مصفوفات (ثابتة) أو قوائم مترابطة (ديناميكية). الأنواع: الطابور الدائري، Deque، الطابور ذو الأولوية. العمليات الرئيسية: enqueue، dequeue، peek، isEmpty، isFull — جميعها O(1). التطبيقات: فحص المتناظر، النافذة المتحركة، التراجع/الإعادة، إدارة المخزن المؤقت، الجدولة الدائرية.", false],
+  ],
+
+  ch6: [
+    ["CHAPTER 6 — LINKED LIST", "الفصل السادس — القائمة المترابطة", true],
+    ["A linked list is a fundamental data structure in computer science that mainly allows efficient insertion and deletion operations compared to arrays.", "القائمة المترابطة هي هيكل بيانات أساسي في علوم الحاسوب يتيح بشكل رئيسي عمليات إدراج وحذف فعّالة مقارنةً بالمصفوفات.", false],
+    ["Like arrays, it is also used to implement other data structures like stack, queue and deque.", "مثل المصفوفات، تُستخدم أيضاً لتطبيق هياكل بيانات أخرى مثل المكدس والطابور والـ deque.", false],
+    ["A linked list is a type of linear data structure where individual items are not necessarily at contiguous locations.", "القائمة المترابطة هي نوع من هياكل البيانات الخطية حيث لا تكون العناصر الفردية بالضرورة في مواقع متجاورة.", false],
+    ["The individual items are called nodes and connected with each other using links.", "تُسمى العناصر الفردية عقداً وترتبط ببعضها باستخدام روابط.", false],
+    ["A node contains two things: first is data and second is a link that connects it with another node.", "تحتوي العقدة على شيئين: الأول هو البيانات والثاني هو الرابط الذي يربطها بعقدة أخرى.", false],
+    ["The first node is called the head node and we can traverse the whole list using this head and next links.", "تُسمى العقدة الأولى عقدة الرأس (head) ويمكننا اجتياز القائمة كاملاً باستخدام هذا الرأس والروابط next.", false],
+    ["6.1 Linked List vs Array", "٦.١ القائمة المترابطة مقابل المصفوفة", true],
+    ["1. Memory Allocation: Array stores elements in contiguous memory locations. Linked List stores nodes in non-contiguous memory locations.", "١. تخصيص الذاكرة: المصفوفة تُخزِّن العناصر في مواقع ذاكرة متجاورة. القائمة المترابطة تُخزِّن العقد في مواقع ذاكرة غير متجاورة.", false],
+    ["2. Size: Array — generally fixed size, may lead to memory wastage or shortage. Linked List — dynamic size, nodes can be added or removed during program execution.", "٢. الحجم: المصفوفة — حجم ثابت في الغالب، قد يؤدي إلى هدر الذاكرة أو شحّها. القائمة المترابطة — حجم ديناميكي، يمكن إضافة العقد أو إزالتها أثناء تشغيل البرنامج.", false],
+    ["3. Accessing Elements: Array — supports random access O(1). Linked List — does not support random access, requires traversal from head, time complexity O(n).", "٣. الوصول إلى العناصر: المصفوفة — تدعم الوصول العشوائي O(1). القائمة المترابطة — لا تدعم الوصول العشوائي، تتطلب الاجتياز من الرأس، التعقيد الزمني O(n).", false],
+    ["4. Insertion: Array — costly (requires shifting elements). Linked List — efficient (create new node and adjust pointers).", "٤. الإدراج: المصفوفة — مكلف (يتطلب إزاحة العناصر). القائمة المترابطة — فعّال (إنشاء عقدة جديدة وتعديل المؤشرات).", false],
+    ["5. Deletion: Array — expensive (remaining elements must be shifted). Linked List — efficient (update pointer of previous node).", "٥. الحذف: المصفوفة — مكلف (يجب إزاحة العناصر المتبقية). القائمة المترابطة — فعّال (تحديث مؤشر العقدة السابقة).", false],
+    ["6. Memory Usage: Array — requires less overhead (stores only data). Linked List — requires extra memory for storing pointers.", "٦. استخدام الذاكرة: المصفوفة — تحتاج عبئاً أقل (تُخزِّن البيانات فقط). القائمة المترابطة — تحتاج ذاكرة إضافية لتخزين المؤشرات.", false],
+    ["7. Implementation Complexity: Arrays are easier to implement. Linked Lists are more complex because they involve pointer manipulation.", "٧. تعقيد التطبيق: المصفوفات أسهل في التطبيق. القوائم المترابطة أكثر تعقيداً لأنها تتضمن معالجة المؤشرات.", false],
+    ["8. Practical Usage: Arrays preferred when — fast access required, size of data is known, read operations more frequent. Linked Lists preferred when — frequent insertion/deletion, memory flexibility important, implementing stacks and queues.", "٨. الاستخدام العملي: المصفوفات مفضَّلة عندما — يتطلب وصولاً سريعاً، يُعرف حجم البيانات، عمليات القراءة أكثر تكراراً. القوائم المترابطة مفضَّلة عندما — إدراج/حذف متكرر، مرونة الذاكرة مهمة، تطبيق المكدسات والطوابير.", false],
+    ["6.2 Representation of Linked List", "٦.٢ تمثيل القائمة المترابطة", true],
+    ["What is a Node? A node is the basic building block of a linked list. Each node contains two main parts: 1. Data — the value we want to store. 2. Next — a pointer that stores the address of the next node.", "ما هي العقدة؟ العقدة هي اللبنة الأساسية للقائمة المترابطة. تحتوي كل عقدة على جزأين رئيسيين: ١. البيانات — القيمة التي نريد تخزينها. ٢. next — مؤشر يُخزِّن عنوان العقدة التالية.", false],
+    ["Node Structure in C++: class Node { public: int data; Node* next; Node(int value) { data = value; next = NULL; } };", "هيكل العقدة في C++: class Node { public: int data; Node* next; Node(int value) { data = value; next = NULL; } };", false],
+    ["If next = NULL, it means the node is the last node.", "إذا كان next = NULL فهذا يعني أن العقدة هي العقدة الأخيرة.", false],
+    ["Creating a Node Object: Node* first = new Node(10); — Memory allocated, data=10, next=NULL.", "إنشاء كائن عقدة: Node* first = new Node(10); — تُخصَّص الذاكرة، data=10، next=NULL.", false],
+    ["6.3 Operations on Linked List:", "٦.٣ العمليات على القائمة المترابطة:", true],
+    ["1. Creation: Allocate memory for the first node (head). When created with one node, its next pointer is set to NULL.", "١. الإنشاء: تُخصَّص الذاكرة للعقدة الأولى (الرأس). عند الإنشاء بعقدة واحدة، يُضبط مؤشر next على NULL.", false],
+    ["2. Insertion: (a) At the Beginning — O(1). (b) At the End — O(n) (traversal needed). (c) At a Specified Position — O(n).", "٢. الإدراج: (أ) في البداية — O(1). (ب) في النهاية — O(n) (يتطلب اجتياز). (ج) في موضع محدد — O(n).", false],
+    ["3. Deletion: (a) Beginning — update head to next node. (b) End — traverse to second-last, set its next to NULL. (c) Specified Location — update pointers to skip deleted node.", "٣. الحذف: (أ) البداية — تحديث الرأس للعقدة التالية. (ب) النهاية — الاجتياز إلى ما قبل الأخيرة وضبط next على NULL. (ج) موضع محدد — تحديث المؤشرات لتخطّي العقدة المحذوفة.", false],
+    ["4. Traversing: Process of visiting each node exactly once, from head to last node. In singly linked list — forward direction only. In doubly linked list — both directions.", "٤. الاجتياز: عملية زيارة كل عقدة مرة واحدة، من الرأس إلى العقدة الأخيرة. في القائمة الأحادية — الاتجاه الأمامي فقط. في القائمة المزدوجة — كلا الاتجاهين.", false],
+    ["5. Searching: Traverse node by node, compare data with target value. Time complexity O(n).", "٥. البحث: الاجتياز عقدة عقدة، مقارنة البيانات بالقيمة المستهدفة. التعقيد الزمني O(n).", false],
+    ["6. Concatenation: Join two linked lists by linking the last node of list A to the first node of list B. Only pointer manipulation — no copying of nodes.", "٦. التسلسل: ربط قائمتين مترابطتين بتوصيل العقدة الأخيرة من القائمة A بالعقدة الأولى من القائمة B. مجرد معالجة مؤشرات — دون نسخ العقد.", false],
+    ["6.4 Types of Linked List:", "٦.٤ أنواع القوائم المترابطة:", true],
+    ["1. Singly Linked List: Simplest type. Each node has Data and Next pointer. Traversal in one direction only (forward). Last node's next = NULL. Advantages: Efficient insertion/deletion, simple structure.", "١. القائمة الأحادية الترابط: أبسط أنواعها. كل عقدة تملك بيانات ومؤشر next. الاجتياز في اتجاه واحد فقط (للأمام). next للعقدة الأخيرة = NULL. المزايا: إدراج وحذف فعّالان، هيكل بسيط.", false],
+    ["Disadvantages of Singly Linked List: No backward traversal. Accessing elements requires sequential traversal. Searching slower compared to arrays.", "عيوب القائمة الأحادية: لا اجتياز للخلف. الوصول إلى العناصر يتطلب اجتياز تسلسلي. البحث أبطأ مقارنةً بالمصفوفات.", false],
+    ["6.4.1 ALGORITHM FOR INSERTING A NODE:", "٦.٤.١ خوارزمية إدراج عقدة:", true],
+    ["(A) Insert at Beginning: Create NewNode, set NewNode→DATA = DATA. If START == NULL: set NewNode→Next = NULL. Else: NewNode→Next = START. Update START = NewNode. O(1).", "(أ) الإدراج في البداية: أنشئ NewNode، اضبط NewNode→DATA = DATA. إذا START == NULL: اضبط NewNode→Next = NULL. وإلا: NewNode→Next = START. حدّث START = NewNode. O(1).", false],
+    ["(B) Insert at End: Create NewNode, set NewNode→Next = NULL. If START == NULL: START = NewNode. Else traverse to last node, set TEMP→Next = NewNode. O(n).", "(ب) الإدراج في النهاية: أنشئ NewNode، اضبط NewNode→Next = NULL. إذا START == NULL: START = NewNode. وإلا اجتز إلى العقدة الأخيرة، اضبط TEMP→Next = NewNode. O(n).", false],
+    ["(C) Insert at Specified Position: Traverse to position POS-1. Set NewNode→Next = TEMP→Next. Set TEMP→Next = NewNode. O(n).", "(ج) الإدراج في موضع محدد: اجتز إلى الموضع POS-1. اضبط NewNode→Next = TEMP→Next. اضبط TEMP→Next = NewNode. O(n).", false],
+    ["6.4.2 ALGORITHM FOR DELETING A NODE: Handles deletion at Beginning, Middle, and End. Involves updating pointers and freeing memory.", "٦.٤.٢ خوارزمية حذف عقدة: تعالج الحذف في البداية والوسط والنهاية. تتضمن تحديث المؤشرات وتحرير الذاكرة.", false],
+    ["6.4.3 ALGORITHM FOR SEARCHING A NODE: Traverse from START, compare each node's DATA with target. Return position if found, else display 'not found'. O(n).", "٦.٤.٣ خوارزمية البحث عن عقدة: اجتز من START، قارن data كل عقدة بالهدف. أعد الموضع إذا وُجد، وإلا اعرض 'not found'. O(n).", false],
+    ["6.4.4 ALGORITHM FOR DISPLAYING ALL NODES: If START == NULL — list is empty. Else traverse from START to NULL, display each node's DATA.", "٦.٤.٤ خوارزمية عرض جميع العقد: إذا START == NULL — القائمة فارغة. وإلا اجتز من START إلى NULL، اعرض بيانات كل عقدة.", false],
+    ["2. Doubly Linked List: Each node has three parts — Data, Next pointer, Previous pointer. Allows traversal in both directions (forward and backward).", "٢. القائمة المزدوجة الترابط: كل عقدة تملك ثلاثة أجزاء — البيانات، مؤشر Next، مؤشر Previous. تتيح الاجتياز في كلا الاتجاهين (للأمام وللخلف).", false],
+    ["3. Circular Linked List: Last node's next pointer points back to the first node, creating a circular structure. No beginning and no end. Useful for round-robin scheduling and buffer management.", "٣. القائمة الدائرية المترابطة: مؤشر next للعقدة الأخيرة يشير إلى العقدة الأولى مكوّناً هيكلاً دائرياً. لا بداية ولا نهاية. مفيدة للجدولة الدائرية وإدارة المخزن المؤقت.", false],
+    ["6.5 STACK USING LINKED LIST (C++): Stack follows LIFO. TOP points to the topmost element. Operations: Push (insert at top), Pop (delete from top).", "٦.٥ المكدس باستخدام القائمة المترابطة (C++): المكدس يتّبع LIFO. TOP يشير إلى العنصر العلوي. العمليات: Push (إدراج عند القمة)، Pop (حذف من القمة).", false],
+    ["PUSH Algorithm: Create NewNode. Assign DATA. Set NewNode→next = TOP. Update TOP = NewNode.", "خوارزمية PUSH: أنشئ NewNode. خصّص DATA. اضبط NewNode→next = TOP. حدّث TOP = NewNode.", false],
+    ["POP Algorithm: If TOP == NULL → stack is empty. Else: TEMP = TOP, display TEMP→DATA, TOP = TOP→next, TEMP→next = NULL, delete TEMP.", "خوارزمية POP: إذا TOP == NULL → المكدس فارغ. وإلا: TEMP = TOP، اعرض TEMP→DATA، TOP = TOP→next، TEMP→next = NULL، احذف TEMP.", false],
+    ["6.6 QUEUE USING LINKED LIST (C++): Queue follows FIFO. FRONT → points to first element (for deletion). REAR → points to last element (for insertion).", "٦.٦ الطابور باستخدام القائمة المترابطة (C++): الطابور يتّبع FIFO. FRONT → يشير إلى العنصر الأول (للحذف). REAR → يشير إلى العنصر الأخير (للإدراج).", false],
+    ["Enqueue Algorithm: Create NewNode. If REAR != NULL → REAR→next = NewNode. Update REAR = NewNode. If queue was empty → FRONT = REAR. Time Complexity = O(1).", "خوارزمية Enqueue: أنشئ NewNode. إذا REAR != NULL → REAR→next = NewNode. حدّث REAR = NewNode. إذا كان الطابور فارغاً → FRONT = REAR. التعقيد الزمني = O(1).", false],
+    ["Dequeue Algorithm: If FRONT == NULL → queue empty. Else: TEMP = FRONT, display FRONT→data. If one element → FRONT = REAR = NULL. Else → FRONT = FRONT→next. Delete TEMP. Time Complexity = O(1).", "خوارزمية Dequeue: إذا FRONT == NULL → الطابور فارغ. وإلا: TEMP = FRONT، اعرض FRONT→data. إذا كان عنصراً واحداً → FRONT = REAR = NULL. وإلا → FRONT = FRONT→next. احذف TEMP. التعقيد الزمني = O(1).", false],
+    ["Summary — Chapter 6: Linked List is a dynamic linear data structure with non-contiguous memory. Node = data + pointer. Types: singly, doubly, circular. Operations: insertion, deletion, traversal, searching, concatenation. Used to implement stacks and queues with dynamic memory.", "ملخص — الفصل السادس: القائمة المترابطة هي هيكل بيانات خطي ديناميكي بذاكرة غير متجاورة. العقدة = بيانات + مؤشر. الأنواع: أحادية، مزدوجة، دائرية. العمليات: إدراج، حذف، اجتياز، بحث، تسلسل. تُستخدم لتطبيق المكدسات والطوابير بذاكرة ديناميكية.", false],
+  ],
+};
+
+/* =============================================
+   MCQ GENERATOR — Logically extracts questions
+   ============================================= */
+function generateMCQForLine(english, arabic, isHeading) {
+  if (isHeading) {
+    return {
+      qEn: "What is the primary topic of this section?",
+      qAr: "ما هو الموضوع الأساسي لهذا القسم؟",
+      options: [
+        { en: english, ar: arabic, correct: true },
+        { en: "An unrelated topic about hardware architecture.", ar: "موضوع غير ذي صلة عن بنية الأجهزة.", correct: false },
+        { en: "General software installation procedures.", ar: "إجراءات تثبيت البرامج العامة.", correct: false },
+        { en: "None of the above concepts.", ar: "لا شيء من المفاهيم المذكورة أعلاه.", correct: false }
+      ].sort(() => Math.random() - 0.5)
+    };
+  }
+
+  const distractors = [
+    { en: "A random memory allocation error in the system.", ar: "خطأ عشوائي في تخصيص الذاكرة في النظام." },
+    { en: "A physical hardware process that cannot be stopped.", ar: "عملية أجهزة مادية لا يمكن إيقافها." },
+    { en: "A network protocol used for secure file transfer.", ar: "بروتوكول شبكة يُستخدم لنقل الملفات بأمان." },
+    { en: "A deprecated function in old C++ compilers.", ar: "دالة مهملة في مترجمات C++ القديمة." },
+    { en: "An algorithm to format the local hard drive.", ar: "خوارزمية لتهيئة القرص الصلب المحلي." },
+    { en: "A method to automatically increase CPU clock speed.", ar: "طريقة لزيادة سرعة ساعة المعالج تلقائياً." },
+    { en: "A technique for securing databases against SQL injection.", ar: "تقنية لتأمين قواعد البيانات ضد حقن SQL." },
+    { en: "A graphic rendering pipeline technique.", ar: "تقنية خط أنابيب معالجة الرسومات." }
+  ].sort(() => Math.random() - 0.5);
+
+  let qEn = "Which of the following correctly describes the concept in this line?";
+  let qAr = "أي مما يلي يصف بدقة المفهوم في هذا السطر؟";
+  
+  let correctEn = english;
+  let correctAr = arabic;
+  
+  const enLower = english.toLowerCase();
+  
+  if (english.includes(" is ") && !english.includes("?")) {
+    let partsEn = english.split(" is ");
+    let partsAr = arabic.split( arabic.includes(" هو ") ? " هو " : (arabic.includes(" هي ") ? " هي " : (arabic.includes(" تُعد ") ? " تُعد " : " ")) );
+    if (partsEn.length > 1 && partsEn[0].split(" ").length <= 6) {
+      qEn = "What is " + partsEn[0].trim() + "?";
+      qAr = "ما هو/هي " + (partsAr[0] || arabic.split(' ')[0]).trim() + "؟";
+      correctEn = "It is " + partsEn.slice(1).join(" is ").trim();
+      correctAr = partsAr.length > 1 ? "هو/هي " + partsAr.slice(1).join(" ") : arabic;
+    }
+  } else if (english.includes(" are ") && !english.includes("?")) {
+    let partsEn = english.split(" are ");
+    if (partsEn.length > 1 && partsEn[0].split(" ").length <= 6) {
+      qEn = "What are " + partsEn[0].trim() + "?";
+      qAr = "ما هي " + arabic.split(' ')[0] + "؟";
+      correctEn = "They are " + partsEn.slice(1).join(" are ").trim();
+    }
+  } else if (enLower.startsWith("a ") || enLower.startsWith("an ") || enLower.startsWith("the ")) {
+    qEn = "What does this term or concept refer to?";
+    qAr = "إلى ماذا يشير هذا المصطلح أو المفهوم؟";
+  }
+
+  let options = [
+    { en: correctEn, ar: correctAr, correct: true },
+    { en: distractors[0].en, ar: distractors[0].ar, correct: false },
+    { en: distractors[1].en, ar: distractors[1].ar, correct: false },
+    { en: distractors[2].en, ar: distractors[2].ar, correct: false }
+  ];
+  options.sort(() => Math.random() - 0.5);
+  
+  return { qEn, qAr, options };
+}
+
+function handleAnswer(btn, isCorrect) {
+  const parent = btn.parentElement;
+  // Disable all options
+  Array.from(parent.children).forEach(child => {
+    if (child.classList.contains('quiz-option')) {
+      child.style.pointerEvents = 'none';
+      if(child.dataset.correct === 'true') {
+        child.classList.add('correct');
+      }
+    }
+  });
+  if(isCorrect) {
+    btn.classList.add('correct');
+  } else {
+    btn.classList.add('incorrect');
+  }
+}
+
+/* =============================================
+   RENDER LINE BLOCKS
+   ============================================= */
+let lineCounter = 0;
+
+function renderLines(containerId, lines) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  
+  lines.forEach(([english, arabic, isHeading], idx) => {
+    lineCounter++;
+    const id = 'line-' + lineCounter;
+    const block = document.createElement('div');
+    block.className = 'line-block';
+    
+    const enClass = isHeading ? 'english-line is-heading' : 'english-line';
+    
+    const isCode = english.trim().startsWith('#include') || 
+                   english.trim().startsWith('int ') ||
+                   english.trim().startsWith('void ') ||
+                   english.trim().startsWith('class ') ||
+                   english.trim().startsWith('struct ') ||
+                   english.trim().startsWith('//') ||
+                   english.trim().startsWith('while') ||
+                   english.trim().startsWith('for') ||
+                   english.trim().startsWith('if') ||
+                   english.trim().startsWith('Node') ||
+                   english.includes('->') ||
+                   (english.includes('{') && english.includes('}') && !isHeading);
+    
+    const finalEnClass = isCode ? 'english-line is-code' : enClass;
+    
+    const mcq = generateMCQForLine(english, arabic, isHeading);
+    const optionsHtml = mcq.options.map((opt, i) => `
+      <div class="quiz-option" data-correct="${opt.correct}" onclick="handleAnswer(this, ${opt.correct})">
+        <div class="quiz-opt-en">${escapeHtml(opt.en)}</div>
+        <div class="quiz-opt-ar">${opt.ar}</div>
+      </div>
+    `).join('');
+    
+    block.innerHTML = `
+      <div class="${finalEnClass}">${escapeHtml(english)}</div>
+      <div class="arabic-line">${arabic}</div>
+      <div class="question-section">
+        <button class="question-toggle" onclick="toggleQ('${id}')">
+          <span class="q-icon">🎯</span>
+          <span>اختبر نفسك (سؤال تفاعلي)</span>
+        </button>
+        <div class="questions-container" id="${id}">
+          <div class="quiz-container">
+            <div class="quiz-q-en">${escapeHtml(mcq.qEn)}</div>
+            <div class="quiz-q-ar">${mcq.qAr}</div>
+            ${optionsHtml}
+          </div>
+        </div>
+      </div>
+    `;
+    
+    container.appendChild(block);
+  });
+}
+
+function escapeHtml(text) {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function toggleQ(id) {
+  const container = document.getElementById(id);
+  const btn = container.previousElementSibling;
+  if (container.classList.contains('open')) {
+    container.classList.remove('open');
+    btn.innerHTML = '<span class="q-icon">🎯</span><span>اختبر نفسك (سؤال تفاعلي)</span>';
+  } else {
+    container.classList.add('open');
+    btn.innerHTML = '<span class="q-icon">❌</span><span>إخفاء السؤال</span>';
+  }
+}
+
+/* =============================================
+   CHAPTER NAVIGATION
+   ============================================= */
+function showChapter(num) {
+  document.querySelectorAll('.chapter-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.chapter-nav-btn').forEach(b => b.classList.remove('active'));
+  
+  document.getElementById('ch' + num).classList.add('active');
+  document.getElementById('nav' + num).classList.add('active');
+  
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* =============================================
+   READING PROGRESS BAR
+   ============================================= */
+window.addEventListener('scroll', () => {
+  const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = (window.scrollY / totalHeight) * 100;
+  document.getElementById('readingProgress').style.width = Math.min(progress, 100) + '%';
+});
+
+/* =============================================
+   INIT
+   ============================================= */
+window.addEventListener('DOMContentLoaded', () => {
+  renderLines('ch1-lines', BOOK_DATA.ch1);
+  renderLines('ch2-lines', BOOK_DATA.ch2);
+  renderLines('ch3-lines', BOOK_DATA.ch3);
+  renderLines('ch4-lines', BOOK_DATA.ch4);
+  renderLines('ch5-lines', BOOK_DATA.ch5);
+  renderLines('ch6-lines', BOOK_DATA.ch6);
+});
+</script>
+</body>
+</html>
