@@ -4,362 +4,388 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Data Structure I – Interactive Book</title>
-<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0f172a;
-  --surface: rgba(30, 41, 59, 0.7);
-  --surface2: rgba(51, 65, 85, 0.8);
-  --border: rgba(148, 163, 184, 0.15);
-  --accent: #fbbf24;
-  --accent-glow: rgba(251, 191, 36, 0.3);
-  --text: #f8fafc;
-  --text-muted: #94a3b8;
-  --arabic: #fde68a;
-  --question-bg: rgba(2, 6, 23, 0.4);
-  --correct: #10b981;
-  --incorrect: #ef4444;
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
-  --glass-blur: blur(16px);
-  --chapter-colors: #fbbf24, #60a5fa, #34d399, #c084fc, #f472b6, #a3e635;
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --surface-hover: #f1f5f9;
+  --border: #e2e8f0;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --accent: #2563eb;
+  --accent-soft: #eff6ff;
+  --arabic-text: #1e293b;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  --correct-bg: #d1fae5;
+  --correct-border: #059669;
+  --incorrect-bg: #fee2e2;
+  --incorrect-border: #dc2626;
+  --radius: 12px;
 }
+
+[data-theme="dark"] {
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --surface-hover: #334155;
+  --border: #334155;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --accent: #38bdf8;
+  --accent-soft: rgba(56, 189, 248, 0.1);
+  --arabic-text: #e2e8f0;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.3);
+  --correct-bg: rgba(16, 185, 129, 0.15);
+  --correct-border: #10b981;
+  --incorrect-bg: rgba(239, 68, 68, 0.15);
+  --incorrect-border: #ef4444;
+}
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: 'Amiri', serif;
-  background: linear-gradient(135deg, #020617, #0f172a, #1e293b);
-  background-attachment: fixed;
-  color: var(--text);
+  font-family: 'Inter', 'Amiri', sans-serif;
+  background-color: var(--bg);
+  color: var(--text-main);
   min-height: 100vh;
   direction: rtl;
+  line-height: 1.6;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 /* ── Header ── */
 .site-header {
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: var(--glass-blur);
+  background-color: var(--surface);
   border-bottom: 1px solid var(--border);
-  padding: 2rem 1.5rem 1.5rem;
+  padding: 1.5rem 2rem;
   text-align: center;
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
 }
 .site-header h1 {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(1.6rem, 4vw, 2.6rem);
-  color: var(--accent);
-  letter-spacing: 1px;
-  text-shadow: 0 0 25px var(--accent-glow);
+  font-family: 'Amiri', serif;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 700;
+  color: var(--text-main);
 }
 .site-header .subtitle {
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   color: var(--text-muted);
-  margin-top: 0.5rem;
   direction: ltr;
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'Inter', sans-serif;
 }
-.site-header .badge {
-  display: inline-block;
-  background: linear-gradient(90deg, #fbbf24, #f59e0b);
-  color: #000;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.8rem;
-  font-weight: 700;
-  padding: 4px 12px;
-  border-radius: 20px;
-  margin-top: 0.8rem;
-  box-shadow: 0 2px 10px rgba(251,191,36,0.3);
+.theme-toggle {
+  position: absolute;
+  left: 2rem;
+  top: 1.5rem;
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  padding: 0.5rem 0.8rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.theme-toggle:hover {
+  background: var(--border);
 }
 
 /* ── Layout ── */
 .layout {
   display: grid;
   grid-template-columns: 280px 1fr;
-  min-height: calc(100vh - 120px);
-  direction: rtl;
+  max-width: 1200px;
+  margin: 0 auto;
+  align-items: start;
 }
 
 /* ── Sidebar ── */
 .sidebar {
-  background: rgba(15, 23, 42, 0.4);
-  backdrop-filter: var(--glass-blur);
-  border-left: 1px solid var(--border);
-  padding: 1.5rem 0;
   position: sticky;
-  top: 120px;
-  height: calc(100vh - 120px);
+  top: 90px;
+  padding: 2rem 1.5rem;
+  height: calc(100vh - 90px);
   overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--accent) transparent;
+  border-left: 1px solid var(--border);
 }
 .sidebar h2 {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 1px;
   color: var(--text-muted);
-  padding: 0 1.2rem 1rem;
-  font-family: 'IBM Plex Mono', monospace;
+  margin-bottom: 1rem;
+  font-family: 'Inter', sans-serif;
+  padding-right: 0.5rem;
 }
 .chapter-nav-btn {
   display: flex;
   align-items: center;
   gap: 0.8rem;
-  width: calc(100% - 16px);
-  margin: 4px 8px;
+  width: 100%;
   background: transparent;
-  border: 1px solid transparent;
-  border-radius: 12px;
-  color: var(--text);
-  padding: 0.8rem 1.2rem;
+  border: none;
+  color: var(--text-muted);
+  padding: 0.8rem 1rem;
   cursor: pointer;
   text-align: right;
   font-family: 'Amiri', serif;
-  font-size: 1rem;
-  transition: all 0.3s ease;
+  font-size: 1.1rem;
+  border-radius: var(--radius);
+  transition: all 0.2s;
+  margin-bottom: 0.2rem;
 }
 .chapter-nav-btn:hover {
-  background: rgba(255,255,255,0.05);
-  transform: translateX(-4px);
+  background-color: var(--surface-hover);
+  color: var(--text-main);
 }
 .chapter-nav-btn.active {
-  background: rgba(251, 191, 36, 0.1);
-  border-color: rgba(251, 191, 36, 0.3);
+  background-color: var(--accent-soft);
   color: var(--accent);
-  box-shadow: inset -4px 0 0 var(--accent);
+  font-weight: bold;
 }
 .chapter-num {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.8rem;
-  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background-color: var(--surface);
+  color: var(--text-main);
+  border: 1px solid var(--border);
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.chapter-nav-btn.active .chapter-num {
+  background-color: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
 }
 
 /* ── Main content ── */
 .main-content {
-  padding: 2.5rem 3rem;
-  direction: rtl;
-  max-width: 1000px;
-  margin: 0 auto;
+  padding: 2rem 3rem;
+  max-width: 900px;
 }
 
-/* ── Chapter section ── */
 .chapter-section {
   display: none;
-  animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeIn 0.4s ease;
 }
 .chapter-section.active {
   display: block;
 }
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 .chapter-header {
-  border-bottom: 2px solid var(--border);
-  padding-bottom: 1.5rem;
-  margin-bottom: 2.5rem;
+  margin-bottom: 3rem;
+  text-align: center;
 }
 .chapter-tag {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'Inter', sans-serif;
   font-size: 0.85rem;
   text-transform: uppercase;
-  letter-spacing: 2px;
-  margin-bottom: 0.5rem;
+  letter-spacing: 1.5px;
   color: var(--accent);
+  margin-bottom: 0.5rem;
 }
 .chapter-header h2 {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(1.8rem, 3.5vw, 2.5rem);
-  line-height: 1.3;
+  font-family: 'Inter', sans-serif;
+  font-size: 2rem;
+  color: var(--text-main);
   margin-bottom: 0.5rem;
+  direction: ltr;
 }
 .chapter-ar-title {
-  font-size: 1.4rem;
-  color: var(--arabic);
+  font-family: 'Amiri', serif;
+  font-size: 1.6rem;
+  color: var(--text-muted);
 }
 
 /* ── Line block ── */
 .line-block {
-  background: var(--surface);
-  backdrop-filter: var(--glass-blur);
+  background-color: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: var(--glass-shadow);
-  margin-bottom: 2rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 1.5rem;
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 .line-block:hover {
-  transform: translateY(-4px);
-  border-color: rgba(251, 191, 36, 0.4);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(251, 191, 36, 0.1);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--border);
 }
 
 .english-line {
-  padding: 1.2rem 1.5rem;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.95rem;
+  padding: 1.2rem 1.5rem 0.2rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
   direction: ltr;
   text-align: left;
-  color: var(--text);
-  background: rgba(0,0,0,0.2);
-  border-bottom: 1px solid var(--border);
+  color: var(--text-main);
   line-height: 1.6;
-  white-space: pre-wrap;
-  word-break: break-word;
 }
-.english-line.is-heading {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--accent);
-  background: rgba(251, 191, 36, 0.05);
-}
-.english-line.is-code {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.9rem;
-  color: #93c5fd;
-  background: #020617;
-  border-left: 4px solid #3b82f6;
-}
-
 .arabic-line {
-  padding: 1.2rem 1.5rem;
+  padding: 0.2rem 1.5rem 1.2rem;
   font-family: 'Amiri', serif;
   font-size: 1.2rem;
-  color: var(--arabic);
+  color: var(--arabic-text);
   direction: rtl;
   text-align: right;
   line-height: 1.8;
 }
 
+.english-line.is-heading {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--accent);
+  padding-bottom: 0.5rem;
+}
+.english-line.is-code {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.9rem;
+  color: var(--accent);
+  background-color: var(--surface-hover);
+  padding: 1rem 1.5rem;
+  margin: 0.5rem 1.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
 /* ── Question section ── */
 .question-section {
-  padding: 1rem 1.5rem;
-  background: var(--question-bg);
   border-top: 1px solid var(--border);
+  background-color: var(--surface-hover);
 }
 .question-toggle {
   width: 100%;
   background: none;
   border: none;
-  color: var(--accent);
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.95rem;
-  font-weight: bold;
+  color: var(--text-muted);
+  font-family: 'Amiri', serif;
+  font-size: 1rem;
   cursor: pointer;
   text-align: right;
-  padding: 0.5rem 0;
+  padding: 0.8rem 1.5rem;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 0.6rem;
+  justify-content: flex-start;
+  gap: 0.5rem;
   transition: all 0.2s;
 }
-.question-toggle:hover { opacity: 0.8; transform: translateX(-4px); }
-.q-icon { font-size: 1.2rem; }
+.question-toggle:hover {
+  color: var(--text-main);
+}
+.q-icon { font-size: 1.1rem; }
 
 .questions-container {
   display: none;
-  margin-top: 1rem;
+  padding: 0 1.5rem 1.5rem;
 }
 .questions-container.open {
   display: block;
-  animation: fadeIn 0.4s ease;
-}
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  animation: fadeIn 0.3s ease;
 }
 
 .quiz-container {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  padding: 1.5rem;
-  background: rgba(255,255,255,0.03);
-  border-radius: 12px;
-  border: 1px dashed rgba(251, 191, 36, 0.3);
+  gap: 0.8rem;
 }
 .quiz-q-en {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 1.05rem;
-  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  color: var(--text-muted);
   direction: ltr;
   text-align: left;
+  margin-top: 0.5rem;
 }
 .quiz-q-ar {
   font-family: 'Amiri', serif;
-  font-size: 1.3rem;
-  color: var(--accent);
-  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  color: var(--text-main);
+  margin-bottom: 0.5rem;
+  font-weight: bold;
 }
 .quiz-option {
   display: flex;
   flex-direction: column;
-  padding: 1rem 1.2rem;
+  padding: 0.8rem 1rem;
   border: 1px solid var(--border);
-  border-radius: 10px;
-  background: rgba(0,0,0,0.3);
+  border-radius: 8px;
+  background-color: var(--surface);
   cursor: pointer;
   transition: all 0.2s;
   position: relative;
 }
 .quiz-option:hover {
-  background: rgba(251, 191, 36, 0.05);
-  border-color: rgba(251, 191, 36, 0.4);
-  transform: translateX(-4px);
+  border-color: var(--accent);
+  background-color: var(--surface-hover);
 }
 .quiz-option.correct {
-  background: rgba(16, 185, 129, 0.15);
-  border-color: var(--correct);
-}
-.quiz-option.correct::after {
-  content: '✓ صحيح';
-  position: absolute;
-  left: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--correct);
-  font-weight: bold;
-  font-family: 'Amiri', serif;
+  background-color: var(--correct-bg);
+  border-color: var(--correct-border);
 }
 .quiz-option.incorrect {
-  background: rgba(239, 68, 68, 0.15);
-  border-color: var(--incorrect);
+  background-color: var(--incorrect-bg);
+  border-color: var(--incorrect-border);
+}
+.quiz-option.correct::after, .quiz-option.incorrect::after {
+  position: relative;
+  display: block;
+  margin-top: 0.8rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-weight: bold;
+  font-family: 'Inter', 'Amiri', serif;
+  font-size: 0.95rem;
+  width: fit-content;
+}
+.quiz-option.correct::after {
+  content: '✓ إجابة صحيحة';
+  background-color: var(--correct-bg);
+  color: var(--correct-border);
+  border: 1px solid var(--correct-border);
 }
 .quiz-option.incorrect::after {
-  content: '✗ خطأ';
-  position: absolute;
-  left: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--incorrect);
-  font-weight: bold;
-  font-family: 'Amiri', serif;
+  content: '✗ إجابة خاطئة';
+  background-color: var(--incorrect-bg);
+  color: var(--incorrect-border);
+  border: 1px solid var(--incorrect-border);
 }
+
 .quiz-opt-en {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'Inter', sans-serif;
   direction: ltr;
   text-align: left;
-  font-size: 0.95rem;
-  color: #cbd5e1;
-  margin-bottom: 0.4rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 0.3rem;
 }
 .quiz-opt-ar {
   font-family: 'Amiri', serif;
-  font-size: 1.15rem;
-  color: #fde68a;
+  font-size: 1.1rem;
+  color: var(--text-main);
 }
 
 /* Progress bar */
@@ -369,10 +395,9 @@ body {
   right: 0;
   width: 0%;
   height: 4px;
-  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+  background: var(--accent);
   z-index: 9999;
   transition: width 0.1s;
-  box-shadow: 0 0 10px #fbbf24;
 }
 
 /* Mobile responsive */
@@ -381,37 +406,35 @@ body {
   .sidebar {
     position: static;
     height: auto;
-    display: flex;
-    flex-wrap: wrap;
     padding: 1rem;
-    gap: 0.5rem;
     border-left: none;
     border-bottom: 1px solid var(--border);
+    display: flex;
+    overflow-x: auto;
+    gap: 0.5rem;
   }
   .sidebar h2 { display: none; }
   .chapter-nav-btn {
-    padding: 0.6rem 1rem;
-    font-size: 0.9rem;
-    border-radius: 20px;
-    border: 1px solid var(--border);
-    flex: none;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    white-space: nowrap;
     width: auto;
     margin: 0;
   }
   .main-content { padding: 1.5rem 1rem; }
-  .quiz-option.correct::after, .quiz-option.incorrect::after {
+  .theme-toggle {
     position: static;
-    display: block;
-    margin-top: 0.5rem;
-    transform: none;
+    margin: 1rem auto 0;
+    width: fit-content;
+  }
+  .quiz-option.correct::after, .quiz-option.incorrect::after {
+    margin-top: 0.6rem;
   }
 }
-
-/* Scrollbar */
-::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: rgba(251, 191, 36, 0.5); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 </style>
 </head>
 <body>
@@ -419,9 +442,11 @@ body {
 <div class="reading-progress" id="readingProgress"></div>
 
 <header class="site-header">
+  <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+    ☀️ / 🌙
+  </button>
   <h1>📚 Data Structure I — هياكل البيانات</h1>
   <div class="subtitle">Dr. Nahla Fathy · Qena University · CS211</div>
-  <div class="badge">🔥 تفاعلي: أسئلة اختيار من متعدد على كل سطر (MCQ)</div>
 </header>
 
 <div class="layout">
@@ -429,27 +454,27 @@ body {
   <nav class="sidebar" id="sidebar">
     <h2>الفصول</h2>
     <button class="chapter-nav-btn active" onclick="showChapter(1)" id="nav1">
-      <span class="chapter-num" style="background:#fbbf24;color:#000">1</span>
+      <span class="chapter-num">1</span>
       مقدمة هياكل البيانات
     </button>
     <button class="chapter-nav-btn" onclick="showChapter(2)" id="nav2">
-      <span class="chapter-num" style="background:#60a5fa;color:#000">2</span>
+      <span class="chapter-num">2</span>
       إدارة الذاكرة
     </button>
     <button class="chapter-nav-btn" onclick="showChapter(3)" id="nav3">
-      <span class="chapter-num" style="background:#34d399;color:#000">3</span>
+      <span class="chapter-num">3</span>
       المصفوفات والقوائم
     </button>
     <button class="chapter-nav-btn" onclick="showChapter(4)" id="nav4">
-      <span class="chapter-num" style="background:#c084fc;color:#000">4</span>
+      <span class="chapter-num">4</span>
       المكدس Stack
     </button>
     <button class="chapter-nav-btn" onclick="showChapter(5)" id="nav5">
-      <span class="chapter-num" style="background:#f472b6;color:#000">5</span>
+      <span class="chapter-num">5</span>
       الطوابير Queue
     </button>
     <button class="chapter-nav-btn" onclick="showChapter(6)" id="nav6">
-      <span class="chapter-num" style="background:#a3e635;color:#000">6</span>
+      <span class="chapter-num">6</span>
       القوائم المتشعبة
     </button>
   </nav>
@@ -460,7 +485,7 @@ body {
     <!-- CHAPTER 1 -->
     <section class="chapter-section active" id="ch1">
       <div class="chapter-header">
-        <div class="chapter-tag" style="color:#fbbf24">CHAPTER 1</div>
+        <div class="chapter-tag">CHAPTER 1</div>
         <h2>Introduction to Data Structure</h2>
         <div class="chapter-ar-title">مقدمة إلى هياكل البيانات</div>
       </div>
@@ -470,7 +495,7 @@ body {
     <!-- CHAPTER 2 -->
     <section class="chapter-section" id="ch2">
       <div class="chapter-header">
-        <div class="chapter-tag" style="color:#60a5fa">CHAPTER 2</div>
+        <div class="chapter-tag">CHAPTER 2</div>
         <h2>Memory Management</h2>
         <div class="chapter-ar-title">إدارة الذاكرة</div>
       </div>
@@ -480,7 +505,7 @@ body {
     <!-- CHAPTER 3 -->
     <section class="chapter-section" id="ch3">
       <div class="chapter-header">
-        <div class="chapter-tag" style="color:#34d399">CHAPTER 3</div>
+        <div class="chapter-tag">CHAPTER 3</div>
         <h2>Array & List</h2>
         <div class="chapter-ar-title">المصفوفات والقوائم</div>
       </div>
@@ -490,7 +515,7 @@ body {
     <!-- CHAPTER 4 -->
     <section class="chapter-section" id="ch4">
       <div class="chapter-header">
-        <div class="chapter-tag" style="color:#c084fc">CHAPTER 4</div>
+        <div class="chapter-tag">CHAPTER 4</div>
         <h2>The Stack – Data Structure</h2>
         <div class="chapter-ar-title">المكدس – هيكل بيانات</div>
       </div>
@@ -500,7 +525,7 @@ body {
     <!-- CHAPTER 5 -->
     <section class="chapter-section" id="ch5">
       <div class="chapter-header">
-        <div class="chapter-tag" style="color:#f472b6">CHAPTER 5</div>
+        <div class="chapter-tag">CHAPTER 5</div>
         <h2>The Queues</h2>
         <div class="chapter-ar-title">الطوابير</div>
       </div>
@@ -510,7 +535,7 @@ body {
     <!-- CHAPTER 6 -->
     <section class="chapter-section" id="ch6">
       <div class="chapter-header">
-        <div class="chapter-tag" style="color:#a3e635">CHAPTER 6</div>
+        <div class="chapter-tag">CHAPTER 6</div>
         <h2>Linked List</h2>
         <div class="chapter-ar-title">القوائم المترابطة</div>
       </div>
@@ -1007,6 +1032,28 @@ function toggleQ(id) {
     container.classList.add('open');
     btn.innerHTML = '<span class="q-icon">❌</span><span>إخفاء السؤال</span>';
   }
+}
+
+/* =============================================
+   THEME TOGGLE
+   ============================================= */
+function toggleTheme() {
+  const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+  if (currentTheme === 'light') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    localStorage.setItem('theme', 'dark');
+  } else {
+    document.documentElement.setAttribute('data-theme', 'light');
+    localStorage.setItem('theme', 'light');
+  }
+}
+
+// Set initial theme
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+  document.documentElement.setAttribute('data-theme', savedTheme);
+} else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+  document.documentElement.setAttribute('data-theme', 'dark');
 }
 
 /* =============================================
